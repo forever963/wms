@@ -3,3 +3,16 @@ spring:
     name: wms
   profiles:
     active: local
+server:
+  servlet:
+    context-path: /wms/api
+  tomcat:
+    connection-timeout: 20s
+mybatis-plus:
+  #指向了项目的src/main/resources/mybatis目录 查找所有.xml文件作为映射器文件
+  mapper-locations: classpath:mybatis/*.xml
+  # 自动扫描这个包及其子包中的所有类，并为它们注册类型别名。这使得在SQL映射文件中引用实体类时可以使用简短的名称而不是全限定名
+  type-aliases-package: com.mortal.wms
+  configuration:
+    #驼峰命名
+    map-underscore-to-camel-case: true
