@@ -16,3 +16,9 @@ mybatis-plus:
   configuration:
     #驼峰命名
     map-underscore-to-camel-case: true
+knife4j:
+  enable: true
+  basic:
+    enable: false
+    username: develop
+    password: niceday123
