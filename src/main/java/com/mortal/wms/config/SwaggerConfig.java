@@ -1,4 +1,4 @@
-package com.mortal.wms.business.config;
+package com.mortal.wms.config;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
