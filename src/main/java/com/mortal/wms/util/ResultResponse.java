@@ -1,4 +1,4 @@
-package com.mortal.wms.business.util;
+package com.mortal.wms.util;
 
 import com.mortal.wms.business.enums.ResultTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
