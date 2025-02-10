@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.LogOperationsMapper">
+
+    <select id="select" resultType="com.mortal.wms.business.entity.LogOperations">
+        select l.*,u.name as userName from log_operations l
+        left join users u on u.id = l.user_id
+        <where>
+            <if test="request.userId != null and request.userId != ''">
+                and userId = #{request.userId}
+            </if>
+            <if test="request.content != null and request.content != ''">
+                and content like concat('%',#{request.content},'%')
+            </if>
+            <if test="request.createdTimeStart != null and request.createdTimeStart !=''">
+                and l.created_time >= #{request.createdTimeStart}
+            </if>
+            <if test="request.createdTimeEnd != null and request.createdTimeEnd != ''">
+                and l.created_time &lt;= #{request.createdTimeEnd}
+            </if>
+        </where>
+        order by l.created_time desc
+    </select>
+</mapper>
