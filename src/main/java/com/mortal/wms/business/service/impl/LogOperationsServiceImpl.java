@@ -22,8 +22,8 @@ public class LogOperationsServiceImpl extends ServiceImpl<LogOperationsMapper, L
     public ResultResponse addLogOperations(UserVo userVo, LogOperations log) {
 
         log.setUserId(1L);
-//        log.setUserAgent(userVo.getUserAgent());
-//        log.setIp(userVo.getIp());
+        log.setUserAgent(userVo.getUserAgent());
+        log.setIp(userVo.getIp());
         int insert = logOperationsMapper.insert(log);
         if (insert > 0) {
             ResultResponse.success(log);
