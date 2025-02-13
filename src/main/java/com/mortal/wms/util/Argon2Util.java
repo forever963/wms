@@ -18,7 +18,7 @@ public class Argon2Util {
     }
 
     public static boolean isValidPassword(String inputPassword, String storedPassword) {
-        return argon2PasswordEncoder.matches(inputPassword, storedPassword);
+        return argon2PasswordEncoder.matches(inputPassword,storedPassword);
     }
 
     public static void main(String args[]) {
