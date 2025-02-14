@@ -82,8 +82,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         if(JwtInterceptorLoginUserMap.get(token) == null || LocalDateTime.now().isAfter(JwtInterceptorLoginUserMap.get(token))){
             LocalDateTime expireTime = usersMapper.selectExpireTimeByToken(token);
             if(expireTime==null || LocalDateTime.now().isAfter(expireTime)){
-                //throw new BusinessException(ResultTypeEnum.PERMISSION_TOKEN_EXPIRED);
-                throw new BusinessException("token过期");
+                throw new BusinessException(ResultTypeEnum.PERMISSION_TOKEN_EXPIRED);
             }
         }else{//map中没有过期时间 则设置过期时间为24h
             JwtInterceptorLoginUserMap.put(token,LocalDateTime.now().plusHours(24));
