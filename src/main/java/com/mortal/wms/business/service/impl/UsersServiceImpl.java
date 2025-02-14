@@ -1,5 +1,6 @@
 package com.mortal.wms.business.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -59,7 +60,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             usersMapper.updateById(users);
             response.setHeader(JwtTokenUtil.AUTH_HEADER_KEY, jwt);
             //返回用户信息
-            users.setPassword(null);
             return ResultResponse.success(users);
 
         } catch (Exception e) {
@@ -70,7 +70,6 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     @Transactional
     public ResultResponse addUser(UserVo userVo, Users users) {
-        log.info("userVo++++++++++" + userVo.toString());
         if (usersMapper.selectCount(new LambdaUpdateWrapper<Users>()
                 .eq(Users::getPhone, users.getPassword())
                 .isNull(Users::getDeletedTime)
@@ -96,7 +95,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     }
 
     @Override
-    public ResultResponse detail(Integer id) {
+    public ResultResponse detail(UserVo userVo, Integer id) {
         Users old = usersMapper.selectOne(new LambdaUpdateWrapper<Users>().eq(Users::getId, id).isNull(Users::getDeletedTime));
         if (old == null) {
             throw new BusinessException("该记录不存在");
@@ -107,14 +106,18 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public ResultResponse list(PageRequest request) {
         Page<Users> page = new Page<>(request.getPageNum(), request.getPageSize());
-        Page<Users> page1 = usersMapper.selectPage(page, new LambdaUpdateWrapper<Users>()
+        Page<Users> page1 = usersMapper.selectPage(page, new LambdaQueryWrapper<Users>()
+                        .select(Users::getId,Users::getIdCard,Users::getName,Users::getGender,Users::getNation
+                        ,Users::getPosition,Users::getNativePlace,Users::getPhone,Users::getContractStartDate,
+                                Users::getContractEndDate,Users::getAdministrator,Users::getCreatedTime
+                        )
                 .isNull(Users::getDeletedTime)
         );
         return ResultResponse.success(page1);
     }
 
     @Override
-    public ResultResponse delete(Integer id) {
+    public ResultResponse delete(UserVo userVo, Integer id) {
         Users old = usersMapper.selectOne(new LambdaUpdateWrapper<Users>()
                 .eq(Users::getId, id)
                 .isNull(Users::getDeletedTime)
@@ -123,6 +126,25 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             throw new BusinessException("该记录不存在");
         }
         old.setDeletedTime(LocalDateTime.now());
+        usersMapper.updateById(old);
+        return ResultResponse.success();
+    }
+
+    @Override
+    public ResultResponse update(UserVo userVo, Users users) {
+        Users old = usersMapper.selectOne(new LambdaUpdateWrapper<Users>()
+                .eq(Users::getId, users.getId())
+                .isNull(Users::getDeletedTime)
+        );
+        old.setModifiedTime(LocalDateTime.now());
+        old.setIdCard(users.getIdCard());
+        old.setName(users.getName());
+        old.setGender(users.getGender());
+        old.setNation(users.getNation());
+        old.setPosition(users.getPosition());
+        old.setNativePlace(users.getNativePlace());
+        old.setContractStartDate(users.getContractStartDate());
+        old.setContractEndDate(users.getContractEndDate());
         usersMapper.updateById(old);
         return ResultResponse.success();
     }

@@ -16,9 +16,11 @@ public interface UsersService extends IService<Users> {
 
     ResultResponse addUser(UserVo userVo, Users users);
 
-    ResultResponse detail(Integer id);
+    ResultResponse detail(UserVo userVo,Integer id);
 
     ResultResponse list(PageRequest request);
 
-    ResultResponse delete(Integer id);
+    ResultResponse delete(UserVo userVo,Integer id);
+
+    ResultResponse update(UserVo userVo, @Valid Users users);
 }

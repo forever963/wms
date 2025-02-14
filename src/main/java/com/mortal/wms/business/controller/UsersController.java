@@ -46,8 +46,8 @@ public class UsersController {
 
     @Operation(summary = "详情")
     @GetMapping("/detail/{id}")
-    public ResultResponse addUser(@PathVariable Integer id) {
-        ResultResponse response = userService.detail(id);
+    public ResultResponse detail(@CurrentUser UserVo userVo,@PathVariable Integer id) {
+        ResultResponse response = userService.detail(userVo,id);
         return response;
     }
 
@@ -60,8 +60,15 @@ public class UsersController {
 
     @Operation(summary = "删除")
     @PutMapping("/delete/{id}")
-    public ResultResponse delete(@PathVariable Integer id) {
-        ResultResponse response = userService.delete(id);
+    public ResultResponse delete(@CurrentUser UserVo userVo,@PathVariable Integer id) {
+        ResultResponse response = userService.delete(userVo,id);
+        return response;
+    }
+
+    @Operation(summary = "编辑")
+    @PutMapping("/update")
+    public ResultResponse update(@CurrentUser UserVo userVo,@Valid @RequestBody Users users) {
+        ResultResponse response = userService.update(userVo,users);
         return response;
     }
 }

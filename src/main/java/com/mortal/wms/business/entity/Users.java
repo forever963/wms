@@ -3,6 +3,7 @@ package com.mortal.wms.business.entity;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.xiaoymin.knife4j.annotations.Ignore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -30,8 +31,7 @@ public class Users implements Serializable {
     private String nation; // 民族
 
     @Schema(description = "密码")
-    @JSONField(serialize=false)
-    @JsonIgnore
+    @TableField(updateStrategy = FieldStrategy.IGNORED) //不被包含在更新语句中
     private String password; // 密码
 
     @Schema(description = "职位", maxLength = 10)
@@ -41,6 +41,7 @@ public class Users implements Serializable {
     private String nativePlace; // 籍贯
 
     @Schema(description = "手机", maxLength = 11)
+    @TableField(updateStrategy = FieldStrategy.IGNORED) //不被包含在更新语句中
     private String phone; // 手机
 
     @Schema(description = "单点登录token")
@@ -58,11 +59,12 @@ public class Users implements Serializable {
     private LocalDateTime contractEndDate; // 合同结束日期
 
     @Schema(description = "是否超管")
+    @TableField(updateStrategy = FieldStrategy.IGNORED) //不被包含在更新语句中
     private Boolean administrator;
 
     @Schema(description = "创建时间")
     @JsonIgnore
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT,updateStrategy = FieldStrategy.IGNORED)//自动插入创建时间  更新忽略
     private LocalDateTime createdTime; // 创建时间
 
     @Schema(description = "修改时间")
