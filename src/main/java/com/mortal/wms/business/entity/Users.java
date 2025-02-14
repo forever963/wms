@@ -2,6 +2,7 @@ package com.mortal.wms.business.entity;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -30,6 +31,7 @@ public class Users implements Serializable {
 
     @Schema(description = "密码")
     @JSONField(serialize=false)
+    @JsonIgnore
     private String password; // 密码
 
     @Schema(description = "职位", maxLength = 10)
@@ -59,13 +61,16 @@ public class Users implements Serializable {
     private Boolean administrator;
 
     @Schema(description = "创建时间")
+    @JsonIgnore
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdTime; // 创建时间
 
     @Schema(description = "修改时间")
+    @JsonIgnore
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime modifiedTime; // 修改时间
 
     @Schema(description = "删除时间")
+    @JsonIgnore
     private LocalDateTime deletedTime; // 删除时间
 }

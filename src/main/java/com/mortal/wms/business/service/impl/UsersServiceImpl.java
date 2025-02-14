@@ -1,6 +1,7 @@
 package com.mortal.wms.business.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mortal.wms.business.dto.UsersLoginRequest;
 import com.mortal.wms.business.entity.LogOperations;
@@ -13,6 +14,7 @@ import com.mortal.wms.config.AudienceConfig;
 import com.mortal.wms.execption.BusinessException;
 import com.mortal.wms.util.Argon2Util;
 import com.mortal.wms.util.JwtTokenUtil;
+import com.mortal.wms.util.PageRequest;
 import com.mortal.wms.util.ResultResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,7 +47,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 return ResultResponse.error("账号不存在");
             }
             // 验证密码
-            if (!Argon2Util.isValidPassword( userLoginQo.getPassword(),users.getPassword())) {
+            if (!Argon2Util.isValidPassword(userLoginQo.getPassword(), users.getPassword())) {
                 return ResultResponse.error("密码错误");
             }
             //设置token过期时间
@@ -55,7 +57,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             users.setSsoToken(jwt);
             users.setSsoExpireTime(LocalDateTime.now().plusSeconds(60 * 60 * 24));
             usersMapper.updateById(users);
-            response.setHeader(JwtTokenUtil.AUTH_HEADER_KEY,   jwt);
+            response.setHeader(JwtTokenUtil.AUTH_HEADER_KEY, jwt);
             //返回用户信息
             users.setPassword(null);
             return ResultResponse.success(users);
@@ -68,7 +70,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     @Transactional
     public ResultResponse addUser(UserVo userVo, Users users) {
-        log.info("userVo++++++++++"+userVo.toString());
+        log.info("userVo++++++++++" + userVo.toString());
         if (usersMapper.selectCount(new LambdaUpdateWrapper<Users>()
                 .eq(Users::getPhone, users.getPassword())
                 .isNull(Users::getDeletedTime)
@@ -90,6 +92,38 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         logOperationsEntity.setContent("添加了用户:" + users.getName());
         logOperationsEntity.setCreatedTime(LocalDateTime.now());
         logOperationsService.addLogOperations(userVo, logOperationsEntity);
+        return ResultResponse.success();
+    }
+
+    @Override
+    public ResultResponse detail(Integer id) {
+        Users old = usersMapper.selectOne(new LambdaUpdateWrapper<Users>().eq(Users::getId, id).isNull(Users::getDeletedTime));
+        if (old == null) {
+            throw new BusinessException("该记录不存在");
+        }
+        return ResultResponse.success(old);
+    }
+
+    @Override
+    public ResultResponse list(PageRequest request) {
+        Page<Users> page = new Page<>(request.getPageNum(), request.getPageSize());
+        Page<Users> page1 = usersMapper.selectPage(page, new LambdaUpdateWrapper<Users>()
+                .isNull(Users::getDeletedTime)
+        );
+        return ResultResponse.success(page1);
+    }
+
+    @Override
+    public ResultResponse delete(Integer id) {
+        Users old = usersMapper.selectOne(new LambdaUpdateWrapper<Users>()
+                .eq(Users::getId, id)
+                .isNull(Users::getDeletedTime)
+        );
+        if (old == null) {
+            throw new BusinessException("该记录不存在");
+        }
+        old.setDeletedTime(LocalDateTime.now());
+        usersMapper.updateById(old);
         return ResultResponse.success();
     }
 

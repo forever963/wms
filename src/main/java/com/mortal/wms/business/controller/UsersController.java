@@ -1,11 +1,13 @@
 package com.mortal.wms.business.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mortal.wms.annotation.CurrentUser;
 import com.mortal.wms.annotation.JwtIgnore;
 import com.mortal.wms.business.dto.UsersLoginRequest;
 import com.mortal.wms.business.entity.Users;
 import com.mortal.wms.business.service.UsersService;
 import com.mortal.wms.business.vo.UserVo;
+import com.mortal.wms.util.PageRequest;
 import com.mortal.wms.util.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,10 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 
@@ -31,17 +30,38 @@ public class UsersController {
     private UsersService userService;
 
     @JwtIgnore
-    @Operation(summary = "用户登录")
+    @Operation(summary = "登录")
     @PostMapping("/login")
     public ResultResponse login(@Valid @RequestBody UsersLoginRequest userLoginQo, HttpServletRequest request, HttpServletResponse response) {
         ResultResponse login = userService.login(userLoginQo, request, response);
         return login;
     }
 
-    @Operation(summary = "用户新增")
+    @Operation(summary = "新增")
     @PostMapping("/user")
     public ResultResponse addUser(@CurrentUser UserVo userVo, @Valid @RequestBody Users users) throws ParseException {
         ResultResponse response = userService.addUser(userVo, users);
+        return response;
+    }
+
+    @Operation(summary = "详情")
+    @GetMapping("/detail/{id}")
+    public ResultResponse addUser(@PathVariable Integer id) {
+        ResultResponse response = userService.detail(id);
+        return response;
+    }
+
+    @Operation(summary = "列表")
+    @GetMapping("/list")
+    public ResultResponse list(PageRequest request) {
+        ResultResponse response = userService.list(request);
+        return response;
+    }
+
+    @Operation(summary = "删除")
+    @PutMapping("/delete/{id}")
+    public ResultResponse delete(@PathVariable Integer id) {
+        ResultResponse response = userService.delete(id);
         return response;
     }
 }

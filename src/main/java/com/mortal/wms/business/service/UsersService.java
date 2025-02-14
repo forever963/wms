@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.mortal.wms.business.dto.UsersLoginRequest;
 import com.mortal.wms.business.entity.Users;
 import com.mortal.wms.business.vo.UserVo;
+import com.mortal.wms.util.PageRequest;
 import com.mortal.wms.util.ResultResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,4 +16,9 @@ public interface UsersService extends IService<Users> {
 
     ResultResponse addUser(UserVo userVo, Users users);
 
+    ResultResponse detail(Integer id);
+
+    ResultResponse list(PageRequest request);
+
+    ResultResponse delete(Integer id);
 }
