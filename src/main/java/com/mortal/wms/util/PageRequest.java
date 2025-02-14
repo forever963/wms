@@ -11,10 +11,10 @@ import java.io.Serializable;
 public class PageRequest implements Serializable {
     @TableField(exist = false)
 //    @ExcelIgnore
-    @Schema(name = "页码")
+    @Schema(description = "页码")
     private Integer pageNum;
     @TableField(exist = false)
 //    @ExcelIgnore
-    @Schema(name = "页长")
+    @Schema(description = "页长")
     private Integer pageSize;
 }
