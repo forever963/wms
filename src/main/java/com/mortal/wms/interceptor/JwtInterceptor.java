@@ -45,7 +45,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     //目标资源方法执行前执行  true放行 false不放行
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 
         // 忽略静态文件
 //        String uri = request.getRequestURL().toString();
@@ -81,8 +81,9 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
         if(JwtInterceptorLoginUserMap.get(token) == null || LocalDateTime.now().isAfter(JwtInterceptorLoginUserMap.get(token))){
             LocalDateTime expireTime = usersMapper.selectExpireTimeByToken(token);
-            if(LocalDateTime.now().isAfter(expireTime)){
-                throw new BusinessException(ResultTypeEnum.PERMISSION_TOKEN_EXPIRED);
+            if(expireTime==null || LocalDateTime.now().isAfter(expireTime)){
+                //throw new BusinessException(ResultTypeEnum.PERMISSION_TOKEN_EXPIRED);
+                throw new BusinessException("token过期");
             }
         }else{//map中没有过期时间 则设置过期时间为24h
             JwtInterceptorLoginUserMap.put(token,LocalDateTime.now().plusHours(24));
