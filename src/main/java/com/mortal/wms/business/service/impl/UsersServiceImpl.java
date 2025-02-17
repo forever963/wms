@@ -76,13 +76,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         ) != 0) {
             throw new BusinessException("手机号已存在");
         }
-        ;
-        if (usersMapper.selectCount(new LambdaUpdateWrapper<Users>()
-                .eq(Users::getIdCard, users.getIdCard())
-                .isNull(Users::getDeletedTime)
-        ) != 0) {
-            throw new BusinessException("身份证号已存在");
-        }
+
         users.setCreatedTime(LocalDateTime.now());
         users.setPassword(Argon2Util.hashPassword(users.getPassword()));
         usersMapper.insert(users);
@@ -96,7 +90,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     public ResultResponse detail(UserVo userVo, Integer id) {
-        Users old = usersMapper.selectOne(new LambdaUpdateWrapper<Users>().eq(Users::getId, id).isNull(Users::getDeletedTime));
+        Users old = usersMapper.selectOne(new LambdaQueryWrapper<Users>()
+                .eq(Users::getId, id).isNull(Users::getDeletedTime));
         if (old == null) {
             throw new BusinessException("该记录不存在");
         }
@@ -107,9 +102,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     public ResultResponse list(PageRequest request) {
         Page<Users> page = new Page<>(request.getPageNum(), request.getPageSize());
         Page<Users> page1 = usersMapper.selectPage(page, new LambdaQueryWrapper<Users>()
-                        .select(Users::getId,Users::getIdCard,Users::getName,Users::getGender,Users::getNation
-                        ,Users::getPosition,Users::getNativePlace,Users::getPhone,Users::getContractStartDate,
-                                Users::getContractEndDate,Users::getAdministrator,Users::getCreatedTime
+                        .select(Users::getPosition,Users::getPhone,Users::getId,Users::getName,
+                                Users::getAdministrator,Users::getCreatedTime
                         )
                 .isNull(Users::getDeletedTime)
         );
@@ -137,14 +131,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 .isNull(Users::getDeletedTime)
         );
         old.setModifiedTime(LocalDateTime.now());
-        old.setIdCard(users.getIdCard());
         old.setName(users.getName());
-        old.setGender(users.getGender());
-        old.setNation(users.getNation());
         old.setPosition(users.getPosition());
-        old.setNativePlace(users.getNativePlace());
-        old.setContractStartDate(users.getContractStartDate());
-        old.setContractEndDate(users.getContractEndDate());
         usersMapper.updateById(old);
         return ResultResponse.success();
     }
