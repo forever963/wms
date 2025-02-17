@@ -5,15 +5,7 @@ import com.mortal.wms.util.ResultResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.UncategorizedSQLException;
-import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * 类描述: 全局异常拦截处理器
@@ -41,30 +33,30 @@ public class GlobalExceptionHandler {
 
 
 
-    /**
-     * 其他全局异常在此捕获
-     * @param e
-     * @return
-     */
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(Throwable.class)
-    public ResultResponse handleException(Throwable e) {
-        String msg = null;
-        log.error("服务运行异常", e);
-        log.error("异常类型：{}",e.getClass());
-        try {
-            msg = e.getCause().getMessage();
-            log.error("异常说明信息：{}",msg);
-        }catch (Exception logError){
-            log.error(String.valueOf(logError));
-        }
-        if(e instanceof UncategorizedSQLException){
-            if(e.getCause() != null && e.getCause() instanceof Exception){
-                // 数据库存储过程主动抛出的异常，返回通用错误码，提示错误信息
-                return new ResultResponse(ResultTypeEnum.SERVICE_FAILED,e.getCause().getMessage(),null);
-            }
-        }
-        return new ResultResponse(ResultTypeEnum.SERVICE_ERROR,msg == null ? ResultTypeEnum.SERVICE_ERROR.getMessage() : msg,null);
-    }
+//    /**
+//     * 其他全局异常在此捕获
+//     * @param e
+//     * @return
+//     */
+//    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//    @ExceptionHandler(Throwable.class)
+//    public ResultResponse handleException(Throwable e) {
+//        String msg = null;
+//        log.error("服务运行异常", e);
+//        log.error("异常类型：{}",e.getClass());
+//        try {
+//            msg = e.getCause().getMessage();
+//            log.error("异常说明信息：{}",msg);
+//        }catch (Exception logError){
+//            log.error(String.valueOf(logError));
+//        }
+//        if(e instanceof UncategorizedSQLException){
+//            if(e.getCause() != null && e.getCause() instanceof Exception){
+//                // 数据库存储过程主动抛出的异常，返回通用错误码，提示错误信息
+//                return new ResultResponse(ResultTypeEnum.SERVICE_FAILED,e.getCause().getMessage(),null);
+//            }
+//        }
+//        return new ResultResponse(ResultTypeEnum.SERVICE_ERROR,msg == null ? ResultTypeEnum.SERVICE_ERROR.getMessage() : msg,null);
+//    }
 
 }
