@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.SupplierInfoMapper">
+    <select id="list"
+            parameterType="com.mortal.wms.business.dto.SupplierInfoPageRequest"
+            resultType="com.mortal.wms.business.entity.SupplierInfo">
+        select * from supplier_info where
+         deleted_time is null
+        <if test="supplierName!=null and supplierName != ''">
+            and supplierName like concat('%',#{supplierName},'%')
+        </if>
+        order by created_time
+    </select>
+</mapper>
