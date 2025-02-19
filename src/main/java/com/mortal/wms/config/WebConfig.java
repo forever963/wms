@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")//拦截所有
-                .excludePathPatterns("/doc.html/**")
+                .excludePathPatterns("/doc.html/**", "/wms/api/doc.html/**","/webjars/**")
                 .excludePathPatterns("/error","/favicon.ico")
                 .excludePathPatterns("/swagger-resources/**", "/v3/**", "/swagger-ui.html/**")
                 .excludePathPatterns("**/login")
