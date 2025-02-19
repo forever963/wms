@@ -7,7 +7,7 @@
         select * from supplier_info where
          deleted_time is null
         <if test="supplierName!=null and supplierName != ''">
-            and supplierName like concat('%',#{supplierName},'%')
+            and supplier_name like concat('%',#{supplierName},'%')
         </if>
         order by created_time
     </select>
