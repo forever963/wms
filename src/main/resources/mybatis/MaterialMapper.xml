@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.MaterialMapper">
+    <select id="list" parameterType="com.mortal.wms.business.dto.MaterialPageRequest"
+            resultType="com.mortal.wms.business.vo.MaterialResponse"
+    >
+        select * from material m
+        left join supplier_info s on m.supplier_id = s.id
+        where m.deleted_time is null
+        <if test="materialName !=null and materialName !='' ">
+            and m.material_name like concat('%',#{materialName},'%')
+        </if>
+        <if test="supplierId !=null ">
+            and m.supplier_id = #{supplierId}
+        </if>
+        <if test="orderInitiatedTime !=null  ">
+            and m.order_initiated_time >= #{orderInitiatedTime}
+        </if>
+        <if test="orderInitiatedTime1 != null ">
+            and m.order_initiated_time &lt;= #{orderInitiatedTime1}
+        </if>
+        <if test="inboundTime !=null  ">
+            and m.inbound_time >= #{inboundTime}
+        </if>
+        <if test="inboundTime1 !=null  ">
+            and m.inbound_time &lt; #{inboundTime1}
+        </if>
+        <if test="materialLeft !=null  ">
+            m.material_left = #{materialLeft}
+        </if>
+    </select>
+
+    <select id="totalList" parameterType="com.mortal.wms.business.dto.MaterialPageRequest"
+            resultType="com.mortal.wms.business.vo.MaterialResponse">
+        select material_name,
+        sum(material_left) as quantity,
+        unit,
+        supplier_id,
+        s.supplier_name as supplier_name,
+        max(inbound_time) as inbound_time,
+        sum(material_left * m.unit_price) as total_price
+        from material m
+        left join supplier_info s on s.id = m.supplier_id
+        where m.deleted_time is null
+        and m.material_left > 0
+        <if test="materialName !=null and materialName !='' ">
+            and m.material_name like concat('%',#{materialName},'%')
+        </if>
+        <if test="supplierId !=null ">
+            and m.supplier_id = #{supplierId}
+        </if>
+        group by material_name, unit, supplier_id;
+    </select>
+</mapper>
