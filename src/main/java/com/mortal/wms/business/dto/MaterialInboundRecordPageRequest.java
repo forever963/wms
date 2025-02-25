@@ -7,7 +7,7 @@ import lombok.Data;
 
 
 @Data
-public class MaterialPageRequest extends PageRequest {
+public class MaterialInboundRecordPageRequest extends PageRequest {
     @Schema(description = "原料名")
     private String materialName;
     @Schema(description = "供货商ID")

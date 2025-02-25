@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.mortal.wms.business.mapper.MaterialMapper">
-    <select id="list" parameterType="com.mortal.wms.business.dto.MaterialPageRequest"
-            resultType="com.mortal.wms.business.vo.MaterialResponse"
+<mapper namespace="com.mortal.wms.business.mapper.MaterialInboundRecordMapper">
+    <select id="list" parameterType="com.mortal.wms.business.dto.MaterialInboundRecordPageRequest"
+            resultType="com.mortal.wms.business.vo.MaterialInboundRecordResponse"
     >
-        select * from material m
+        select * from material_inbound_record m
         left join supplier_info s on m.supplier_id = s.id
         where m.deleted_time is null
         <if test="materialName !=null and materialName !='' ">
@@ -30,8 +30,8 @@
         </if>
     </select>
 
-    <select id="totalList" parameterType="com.mortal.wms.business.dto.MaterialPageRequest"
-            resultType="com.mortal.wms.business.vo.MaterialResponse">
+    <select id="totalList" parameterType="com.mortal.wms.business.dto.MaterialInboundRecordPageRequest"
+            resultType="com.mortal.wms.business.vo.MaterialInboundRecordResponse">
         select material_name,
         sum(material_left) as quantity,
         unit,
@@ -39,7 +39,7 @@
         s.supplier_name as supplier_name,
         max(inbound_time) as inbound_time,
         sum(material_left * m.unit_price) as total_price
-        from material m
+        from material_inbound_record m
         left join supplier_info s on s.id = m.supplier_id
         where m.deleted_time is null
         and m.material_left > 0

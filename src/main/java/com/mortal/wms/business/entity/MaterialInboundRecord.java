@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Schema(description = "原料信息")
-public class Material implements Serializable {
+public class MaterialInboundRecord implements Serializable {
     @TableId(type = IdType.AUTO)
     @Schema(description = "主键ID", example = "1")
     private Integer id; // 主键ID

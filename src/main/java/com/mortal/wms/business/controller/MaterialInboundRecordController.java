@@ -1,9 +1,9 @@
 package com.mortal.wms.business.controller;
 
 import com.mortal.wms.annotation.CurrentUser;
-import com.mortal.wms.business.dto.MaterialPageRequest;
-import com.mortal.wms.business.entity.Material;
-import com.mortal.wms.business.service.MaterialService;
+import com.mortal.wms.business.dto.MaterialInboundRecordPageRequest;
+import com.mortal.wms.business.entity.MaterialInboundRecord;
+import com.mortal.wms.business.service.MaterialInboundRecordService;
 import com.mortal.wms.business.vo.UserVo;
 import com.mortal.wms.util.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,49 +16,49 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/material")
 @Slf4j
 @Tag(name = "原料",description = "原料接口")
-public class MaterialController {
+public class MaterialInboundRecordController {
     @Autowired
-    private MaterialService materialService;
+    private MaterialInboundRecordService materialInboundRecordService;
 
     @Operation(summary = "新增")
     @PostMapping("/add")
-    public ResultResponse addMaterial(@CurrentUser UserVo userVo, @RequestBody Material material) {
-        ResultResponse resultResponse = materialService.add(userVo,material);
+    public ResultResponse addMaterial(@CurrentUser UserVo userVo, @RequestBody MaterialInboundRecord materialInboundRecord) {
+        ResultResponse resultResponse = materialInboundRecordService.add(userVo,materialInboundRecord);
         return resultResponse;
     }
 
     @Operation(summary = "详情")
     @GetMapping("/detail/{id}")
     public ResultResponse detail(@CurrentUser UserVo userVo,@PathVariable Integer id) {
-        ResultResponse resultResponse = materialService.detail(userVo,id);
+        ResultResponse resultResponse = materialInboundRecordService.detail(userVo,id);
         return resultResponse;
     }
 
     @Operation(summary = "列表")
     @GetMapping("list")
-    public ResultResponse list(@CurrentUser UserVo userVo,MaterialPageRequest request) {
-        ResultResponse resultResponse = materialService.list(userVo,request);
+    public ResultResponse list(@CurrentUser UserVo userVo, MaterialInboundRecordPageRequest request) {
+        ResultResponse resultResponse = materialInboundRecordService.list(userVo,request);
         return resultResponse;
     }
 
     @Operation(summary = "原料入库")
     @GetMapping("/inbound/{id}")
     public ResultResponse inbound(@CurrentUser UserVo userVo,@PathVariable Integer id) {
-        ResultResponse resultResponse = materialService.inbound(userVo,id);
+        ResultResponse resultResponse = materialInboundRecordService.inbound(userVo,id);
         return resultResponse;
     }
 
     @Operation(summary = "删除")
     @GetMapping("/delete/{id}")
     private ResultResponse deleteMaterial(@CurrentUser UserVo userVo,@PathVariable Integer id) {
-        ResultResponse resultResponse = materialService.delete(userVo,id);
+        ResultResponse resultResponse = materialInboundRecordService.delete(userVo,id);
         return resultResponse;
     }
 
     @Operation(summary = "原料总览")
     @GetMapping("/total")
-    private ResultResponse total(@CurrentUser UserVo userVo,MaterialPageRequest request) {
-        ResultResponse resultResponse = materialService.total(userVo,request);
+    private ResultResponse total(@CurrentUser UserVo userVo, MaterialInboundRecordPageRequest request) {
+        ResultResponse resultResponse = materialInboundRecordService.total(userVo,request);
         return resultResponse;
     }
 }
