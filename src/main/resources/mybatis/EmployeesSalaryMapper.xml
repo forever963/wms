@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.EmployeesSalaryMapper">
+    <select id="list"
+            resultType="com.mortal.wms.business.entity.EmployeesSalary"
+            parameterType="com.mortal.wms.business.dto.EmployeesSalaryPageRequest">
+        select * from employees_salary
+        where deleted_time is null
+        <if test="salaryYear !=null ">
+            and salary_year = #{salaryYear}
+        </if>
+        <if test="salaryMouth !=null ">
+            and salary_mouth = #{salaryMouth}
+        </if>
+    </select>
+</mapper>

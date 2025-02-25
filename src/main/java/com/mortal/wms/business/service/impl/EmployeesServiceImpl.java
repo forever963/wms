@@ -82,7 +82,7 @@ public class EmployeesServiceImpl extends ServiceImpl<EmployeesMapper,Employees>
         List<Employees> employees = employeesMapper.selectList(new LambdaQueryWrapper<Employees>()
                 .isNull(Employees::getDeletedTime)
         );
-        PageResult pageResult = PageResult.ckptPageUtilList(request.getPageSize(),request.getPageNum(),employees);
+        PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(),request.getPageSize(),employees);
         return ResultResponse.success(pageResult);
     }
 }
