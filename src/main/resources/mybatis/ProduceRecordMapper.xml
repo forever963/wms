@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.ProduceRecordMapper">
+    <select id="list" parameterType="com.mortal.wms.business.dto.ProductPageRequest"
+    resultType="com.mortal.wms.business.entity.ProduceRecord"
+    >
+        select * from produce_record
+        where deleted_time is null
+        <if test="productName !=null and productName != '' ">
+            and product_name like concat('%',#{productName},'%')
+        </if>
+    </select>
+
+    <select id="total"
+    parameterType="com.mortal.wms.business.dto.ProductPageRequest"
+    resultType="com.mortal.wms.business.entity.ProduceRecord"
+    >
+        select product_name,
+        sum(left_quantity) as left_quantity ,
+        unit,
+        sum((total_cost / produce_quantity)*left_quantity) as total_cost
+        from produce_record pr
+        where pr.deleted_time is null
+        <if test="productName!=null and productName!='' ">
+            and pr.product_name like concat('%',#{productName},'%')
+        </if>
+        group by product_name,unit
+    </select>
+</mapper>

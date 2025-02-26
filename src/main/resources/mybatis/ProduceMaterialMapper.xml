@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.ProduceMaterialMapper">
+    <select id="list"
+            parameterType="com.mortal.wms.business.dto.ProduceMaterialPageRequest"
+            resultType="com.mortal.wms.business.vo.ProductMaterialResponse">
+        select pm.*,mir.material_name as materialName from produce_material pm
+                 left join material_inbound_record mir on pm.material_inbound_record_id = mir.id
+        where pm.deleted_time is null
+        <if test="materialName !=null and materialName!=''">
+            and mir.material_name like concat('%',#{materialName},'%')
+        </if>
+        <if test="createdTime !=null  ">
+            and pm.created_time >= #{createdTime}
+        </if>
+        <if test="createdTime1 !=null  ">
+            and pm.created_time &lt; #{createdTime1}
+        </if>
+    </select>
+</mapper>
