@@ -42,7 +42,8 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
         request.setLeftQuantity(request.getProduceQuantity());
         request.setCreatedTime(LocalDateTime.now());
         //插入 拿到主键id
-        int insert = produceRecordMapper.insert(request);
+        produceRecordMapper.insert(request);
+        int insert = request.getId();
         //检查原料消耗 并写入原料消耗记录
         request.getProduceMaterialList().stream().forEach(x -> {
             if (x.getUnit().equals("吨")) {
