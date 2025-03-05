@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mortal.wms.business.mapper.ProductOutboundRecordMapper">
+    <select id="list"
+            parameterType="com.mortal.wms.business.dto.OrderOutBoundPageRequest"
+            resultType="com.mortal.wms.business.vo.ProductOutboundRecordResponse">
+        select *,
+               o.order_num as orderNum,
+               ci.company_name as companyName,
+               pr.product_name as productName,
+               pr.created_time as produceTime
+        from product_outbound_record por
+        left join order_product op on por.order_product_id = op.id
+        left join orders o on o.id = op.order_id
+        left join customer_info ci on ci.id = o.customer_info_id
+        left join produce_record pr on por.produce_record_id = pr.id
+        where por.deleted_time is null
+        <if test="customerInfoId != null">
+            ci.id = #{customerInfoId}
+        </if>
+    </select>
+</mapper>

@@ -33,10 +33,10 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
 
     @Override
     public ResultResponse add(UserVo userVo, ProduceRecordRequest request) {
-        //验证单位 入库单位必须是kg
-        if (request.getUnit().equals("吨")) {
+        //验证单位 入库单位必须是KG
+        if (request.getUnit().equals("T")) {
             request.setProduceQuantity(request.getProduceQuantity() * 1000);
-            request.setUnit("千克");
+            request.setUnit("KG");
         }
         //同步到剩余库存 为了订单出库
         request.setLeftQuantity(request.getProduceQuantity());
@@ -46,9 +46,9 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
         int insert = request.getId();
         //检查原料消耗 并写入原料消耗记录
         request.getProduceMaterialList().stream().forEach(x -> {
-            if (x.getUnit().equals("吨")) {
+            if (x.getUnit().equals("T")) {
                 x.setQuantityUsed(x.getQuantityUsed() * 1000);
-                x.setUnit("千克");
+                x.setUnit("KG");
             }
             //生产总成本 = 各次 原料使用成本相加
             x.setProduceRecordId(insert);
@@ -56,7 +56,7 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
 
             int totalQuantity = materialInboundRecordMapper.getTotalQuantity(x.getMaterialName(), x.getSupplierId());
             if (totalQuantity < x.getQuantityUsed()) {
-                throw new BusinessException("原料不足");
+                throw new BusinessException(x.getMaterialName()+"原料不足");
             }
             //原料入库记录表需要做出相应修改
             //用name 查出该原料 1.未使用完 2.最早一次入库 的记录 TODO

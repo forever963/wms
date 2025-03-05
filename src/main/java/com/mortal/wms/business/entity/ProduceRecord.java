@@ -23,10 +23,10 @@ public class ProduceRecord implements Serializable {
     @Schema(description = "该次生产数量", required = true)
     private Integer produceQuantity;
 
-    @Schema(description = "单位", required = true, maxLength = 50, example = "吨")
+    @Schema(description = "单位", required = true, maxLength = 50, example = "KG/T")
     private String unit;
 
-    @Schema(description = "该次生产的产品总成本", required = true)
+    @Schema(description = "该次生产的产品总成本(传0)", required = true)
     private BigDecimal totalCost;
 
     @Schema(description = "剩余数量 为出库准备", defaultValue = "0")

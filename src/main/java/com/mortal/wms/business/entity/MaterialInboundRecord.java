@@ -25,7 +25,7 @@ public class MaterialInboundRecord implements Serializable {
     @Schema(description = "数量", required = true)
     private Integer quantity;
 
-    @Schema(description = "单位", required = true, maxLength = 50, example = "吨")
+    @Schema(description = "单位", required = true, maxLength = 50, example = "KG/T")
     private String unit;
 
     @Schema(description = "税率")

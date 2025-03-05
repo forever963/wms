@@ -9,6 +9,7 @@ import com.mortal.wms.business.entity.SupplierInfo;
 import com.mortal.wms.business.mapper.InfoCategoriesMapper;
 import com.mortal.wms.business.mapper.MaterialInboundRecordMapper;
 import com.mortal.wms.business.mapper.SupplierInfoMapper;
+import com.mortal.wms.business.service.InfoCategoriesService;
 import com.mortal.wms.business.service.MaterialInboundRecordService;
 import com.mortal.wms.business.vo.MaterialInboundRecordResponse;
 import com.mortal.wms.business.vo.UserVo;
@@ -33,7 +34,7 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
     @Autowired
     private SupplierInfoMapper supplierInfoMapper;
     @Autowired
-    private InfoCategoriesMapper infoCategoriesMapper;
+    private InfoCategoriesService infoCategoriesService;
 
     @Override
     @Transactional
@@ -43,14 +44,14 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         if (supplierInfo == null || supplierInfo.getDeletedTime() != null) {
             throw new BusinessException("该供货商不存在,请检查并重新提交");
         }
-        if (infoCategoriesMapper.get(materialInboundRecord.getMaterialName()) == 0) {
+        if (infoCategoriesService.ifExists(materialInboundRecord.getMaterialName())) {
             throw new BusinessException("该原料不存在,请联系管理员添加字典");
         }
-        //验证单位 入库单位必须是kg
-        if (materialInboundRecord.getUnit().equals("吨")) {
+        //验证单位 入库单位必须是KG
+        if (materialInboundRecord.getUnit().equals("T")) {
             materialInboundRecord.setQuantity(materialInboundRecord.getQuantity() * 1000);
             materialInboundRecord.setUnitPrice(materialInboundRecord.getUnitPrice().divide(new BigDecimal(1000)));
-            materialInboundRecord.setUnit("千克");
+            materialInboundRecord.setUnit("KG");
         }
         //验证税率 税费
         if (materialInboundRecord.getUnitPrice().multiply(new BigDecimal(materialInboundRecord.getQuantity())).compareTo(materialInboundRecord.getTotalPrice()) != 0) {

@@ -23,19 +23,19 @@ public class ProduceMaterial implements Serializable {
     @Schema(description = "供货商id", required = true)
     private Integer supplierId;
 
-    @Schema(description = "生产记录ID 不填", required = false)
+    @Schema(description = "生产记录ID 不填")
     private Integer produceRecordId;
 
     @Schema(description = "使用数量", required = true)
     private Integer quantityUsed;
 
-    @Schema(description = "单位", required = true, maxLength = 50, example = "吨")
+    @Schema(description = "单位", required = true, maxLength = 50, example = "T/KG")
     private String unit;
 
     @Schema(description = "单位成本", required = true)
     private BigDecimal costPerUnit;
 
-    @Schema(description = "该项成本总计", required = true)
+    @Schema(description = "该项成本总计")
     private BigDecimal totalCost;
 
     @Schema(description = "创建时间")
