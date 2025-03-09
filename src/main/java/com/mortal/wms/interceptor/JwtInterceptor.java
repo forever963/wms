@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.method.HandlerMethod;
@@ -46,7 +47,10 @@ public class JwtInterceptor implements HandlerInterceptor {
     //目标资源方法执行前执行  true放行 false不放行
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return true;
+        }
         // 忽略静态文件
 //        String uri = request.getRequestURL().toString();
 //        String[] ignore = new String[]{""};
