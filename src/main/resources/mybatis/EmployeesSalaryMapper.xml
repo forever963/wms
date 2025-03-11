@@ -12,5 +12,6 @@
         <if test="salaryMouth !=null ">
             and salary_mouth = #{salaryMouth}
         </if>
+        order by created_time desc
     </select>
 </mapper>

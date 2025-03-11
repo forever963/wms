@@ -16,5 +16,6 @@
         <if test="createdTime1 !=null  ">
             and pm.created_time &lt; #{createdTime1}
         </if>
+        order by pm.deleted_time desc
     </select>
 </mapper>

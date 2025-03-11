@@ -9,6 +9,6 @@
         <if test="supplierName!=null and supplierName != ''">
             and supplier_name like concat('%',#{supplierName},'%')
         </if>
-        order by created_time
+        order by created_time desc
     </select>
 </mapper>

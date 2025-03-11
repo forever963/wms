@@ -18,5 +18,6 @@
         <if test="customerInfoId != null">
             ci.id = #{customerInfoId}
         </if>
+        order by por.created_time desc
     </select>
 </mapper>
