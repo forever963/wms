@@ -28,7 +28,7 @@ public class SupplierInfoController {
     }
 
     @Operation(summary = "删除")
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResultResponse add(@CurrentUser UserVo userVo, @PathVariable Integer id) {
         ResultResponse response = supplierInfoService.delete(userVo, id);
         return response;

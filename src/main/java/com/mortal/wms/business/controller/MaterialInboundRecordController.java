@@ -49,7 +49,7 @@ public class MaterialInboundRecordController {
     }
 
     @Operation(summary = "删除")
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     private ResultResponse deleteMaterial(@CurrentUser UserVo userVo,@PathVariable Integer id) {
         ResultResponse resultResponse = materialInboundRecordService.delete(userVo,id);
         return resultResponse;

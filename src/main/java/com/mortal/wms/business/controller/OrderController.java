@@ -31,7 +31,7 @@ public class OrderController {
         return orderService.addOrder(userVo,request);
     }
 
-    @PutMapping("/{id}")
+    @DeleteMapping("/{id}")
     @Operation(summary = "删除订单")
     @Transactional
     public ResultResponse deleteOrder(@CurrentUser UserVo userVo,@PathVariable Integer id) {
