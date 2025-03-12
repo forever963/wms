@@ -10,6 +10,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -45,11 +46,11 @@ public class Employees implements Serializable {
 
     @Schema(description = "合同起始日期")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime contractStartDate; // 合同起始日期
+    private LocalDate contractStartDate; // 合同起始日期
 
     @Schema(description = "合同结束日期")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime contractEndDate; // 合同结束日期
+    private LocalDate contractEndDate; // 合同结束日期
 
     @Schema(description = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

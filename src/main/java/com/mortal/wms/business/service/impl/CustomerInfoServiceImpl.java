@@ -75,7 +75,7 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
     @Override
     public ResultResponse getCustomerById(Integer id) {
         CustomerInfo customer = customerInfoMapper.selectById(id);
-        if (customer != null || customer.getDeletedTime() != null) {
+        if (customer == null || customer.getDeletedTime() != null) {
             throw new BusinessException("该记录不存在");
         }
         return ResultResponse.success(customer);
@@ -85,6 +85,7 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
     public ResultResponse listCustomers(PageRequest request) {
         List<CustomerInfo> customers = customerInfoMapper.selectList(new LambdaQueryWrapper<CustomerInfo>()
                 .isNull(CustomerInfo::getDeletedTime)
+                .orderByDesc(CustomerInfo::getCreatedTime)
         );
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), customers);
         return ResultResponse.success(pageResult);

@@ -25,6 +25,9 @@ public class SupplierInfoServiceImpl extends ServiceImpl<SupplierInfoMapper, Sup
 
     @Override
     public ResultResponse add(UserVo userVo, SupplierInfo supplierInfo) {
+        if(supplierInfo.getSupplierName()==null || supplierInfo.getSupplierName().isEmpty()){
+            throw new BusinessException("供货商名不能为空");
+        }
         supplierInfo.setCreatedTime(LocalDateTime.now());
         supplierInfoMapper.insert(supplierInfo);
         return ResultResponse.success();

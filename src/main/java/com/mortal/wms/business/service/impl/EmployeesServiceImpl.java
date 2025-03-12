@@ -81,6 +81,7 @@ public class EmployeesServiceImpl extends ServiceImpl<EmployeesMapper,Employees>
     public ResultResponse listEmployees(PageRequest request) {
         List<Employees> employees = employeesMapper.selectList(new LambdaQueryWrapper<Employees>()
                 .isNull(Employees::getDeletedTime)
+                .orderByDesc(Employees::getCreatedTime)
         );
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(),request.getPageSize(),employees);
         return ResultResponse.success(pageResult);
