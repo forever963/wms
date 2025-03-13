@@ -73,7 +73,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         final String token = request.getHeader(JwtTokenUtil.AUTH_HEADER_KEY);
         //2、校验令牌
         if(StringUtils.isBlank(token)){
-            throw new BusinessException("无法获取登录状态，请重新登录");
+            throw new BusinessException(ResultTypeEnum.PERMISSION_TOKEN_EXPIRED);
         }
         // 验证token是否有效
         JwtTokenUtil.parseJWT(token,audienceConfig.getBase64Secret());
