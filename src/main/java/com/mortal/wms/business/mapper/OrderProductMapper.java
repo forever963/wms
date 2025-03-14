@@ -12,4 +12,7 @@ public interface OrderProductMapper extends BaseMapper<OrderProduct> {
 
     @Select("select sum(op.quantity * op.unit_price) from order_product op where order_id = #{orderId} and deleted_time is null")
     BigDecimal getTotalByOrderId(Integer orderId);
+
+    @Select("SELECT SUM(quantity * unit_price) FROM order_product WHERE deleted_time IS NULL AND YEAR(created_time) = #{year}")
+    BigDecimal getAnnualOrderTotal(Integer year);
 }

@@ -10,22 +10,22 @@ import com.mortal.wms.business.entity.*;
 import com.mortal.wms.business.mapper.*;
 import com.mortal.wms.business.service.InfoCategoriesService;
 import com.mortal.wms.business.service.OrderService;
+import com.mortal.wms.business.vo.HomeDataVo;
 import com.mortal.wms.business.vo.OrdersResponse;
 import com.mortal.wms.business.vo.ProductOutboundRecordResponse;
 import com.mortal.wms.business.vo.UserVo;
 import com.mortal.wms.execption.BusinessException;
 import com.mortal.wms.util.PageResult;
 import com.mortal.wms.util.ResultResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +44,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     private ProductOutboundRecordMapper productOutboundRecordMapper;
     @Autowired
     private ProduceRecordMapper produceRecordMapper;
+    @Autowired
+    private SupplierInfoMapper supplierInfoMapper;
+    @Autowired
+    private MaterialInboundRecordMapper materialInboundRecordMapper;
 
 
     @Override
@@ -194,5 +198,45 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
         PageResult result = PageResult.ckptPageUtilList(request.getPageNum(),request.getPageSize(),list);
         return ResultResponse.success(result);
+    }
+
+    @Override
+    public ResultResponse homeData(Integer year) {
+        HomeDataVo homeDataVo = new HomeDataVo();
+
+        homeDataVo.setAnnualOrderTotal(orderProductMapper.getAnnualOrderTotal(year).divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP));
+        homeDataVo.setRestockAnnualTotal(materialInboundRecordMapper.getTotal(year).divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP));
+        homeDataVo.setCustomerNumber(customerInfoMapper.selectCount(new LambdaQueryWrapper<CustomerInfo>().isNull(CustomerInfo::getDeletedTime)).intValue());
+        homeDataVo.setSupplierNumber(supplierInfoMapper.selectCount(new LambdaQueryWrapper<SupplierInfo>().isNull(SupplierInfo::getDeletedTime)).intValue());
+
+        Map<Integer,BigDecimal> map1 = new HashMap<>();
+        List<OrderProduct> orderProducts = orderProductMapper.selectList(new LambdaQueryWrapper<OrderProduct>().isNull(OrderProduct::getDeletedTime).apply("YEAR(created_time) = {0}", year));
+        orderProducts.forEach(x -> {
+            int month = x.getCreatedTime().getMonth().getValue();
+            BigDecimal currentProductTotalPrice = x.getUnitPrice().multiply(BigDecimal.valueOf(x.getQuantity()));
+            map1.merge(month, currentProductTotalPrice, BigDecimal::add);
+        });
+        homeDataVo.setMonthlyOrderTotal(map1);
+
+        Map<Integer,BigDecimal> map2 = new HashMap<>();
+        List<Orders> ordersList = orderMapper.selectList(new LambdaQueryWrapper<Orders>().isNull(Orders::getDeletedTime).apply("YEAR(order_creation_time) = {0}", year));
+        ordersList.forEach(x -> {
+            int month = x.getCreatedTime().getMonth().getValue();
+            BigDecimal currentProductTotalPrice = x.getPaidAmount();
+            map2.merge(month, currentProductTotalPrice, BigDecimal::add);
+        });
+        homeDataVo.setIncome(map2);
+        List<MaterialInboundRecord> materialInboundRecords = materialInboundRecordMapper.selectList(new LambdaQueryWrapper<MaterialInboundRecord>()
+                .isNull(MaterialInboundRecord::getDeletedTime).apply("YEAR(order_initiated_time) = {0}", year));
+        Map<Integer,BigDecimal> map3 = new HashMap<>();
+
+        materialInboundRecords.forEach(x -> {
+            int month = x.getOrderInitiatedTime().getMonth().getValue();
+            BigDecimal currentProductTotalPrice = x.getTotalPrice();
+            map3.merge(month, currentProductTotalPrice, BigDecimal::add);
+        });
+
+        homeDataVo.setExpense(map3);
+        return ResultResponse.success(homeDataVo);
     }
 }

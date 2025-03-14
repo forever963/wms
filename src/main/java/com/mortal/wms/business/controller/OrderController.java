@@ -24,6 +24,13 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @GetMapping("/homeData")
+    @Operation(summary = "首页数据")
+    @Transactional
+    public ResultResponse homeData(Integer year) {
+        return orderService.homeData(year);
+    }
+
     @PostMapping("/add")
     @Operation(summary = "添加订单")
     @Transactional

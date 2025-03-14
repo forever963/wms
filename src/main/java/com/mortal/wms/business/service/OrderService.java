@@ -25,4 +25,6 @@ public interface OrderService extends IService<Orders> {
     ResultResponse outbound(UserVo userVo, OrderOutBoundRequest request);
 
     ResultResponse outBoundRecordlist(UserVo userVo, OrderOutBoundPageRequest request);
+
+    ResultResponse homeData(Integer year);
 }
