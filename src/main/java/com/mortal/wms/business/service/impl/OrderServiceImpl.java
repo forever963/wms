@@ -99,7 +99,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         list.forEach(x -> {
             BigDecimal totalPrice = BigDecimal.ZERO;
             for (OrderProduct y : orderProducts) {
-                totalPrice = totalPrice.add(y.getUnitPrice().multiply(new BigDecimal(y.getQuantity())));
+                if (y.getOrderId().equals(x.getId())) {
+                    totalPrice = totalPrice.add(y.getUnitPrice().multiply(new BigDecimal(y.getQuantity())));
+                }
             }
             x.setCustomerInfoName(customerInfosMap.get(x.getCustomerInfoId()).getCompanyName());
             x.setOrderProductList(map.get(x.getId()));
@@ -131,7 +133,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
     @Override
     public ResultResponse receipt(UserVo userVo, OrderReceipt request) {
-        if(request.getReceiptTime()==null){
+        if (request.getReceiptTime() == null) {
             request.setReceiptTime(LocalDateTime.now());
         }
         orderReceiptMapper.insert(request);
@@ -199,7 +201,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public ResultResponse outBoundRecordlist(UserVo userVo, OrderOutBoundPageRequest request) {
         List<ProductOutboundRecordResponse> list = productOutboundRecordMapper.list(request);
 
-        PageResult result = PageResult.ckptPageUtilList(request.getPageNum(),request.getPageSize(),list);
+        PageResult result = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
         return ResultResponse.success(result);
     }
 
@@ -212,7 +214,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         homeDataVo.setCustomerNumber(customerInfoMapper.selectCount(new LambdaQueryWrapper<CustomerInfo>().isNull(CustomerInfo::getDeletedTime)).intValue());
         homeDataVo.setSupplierNumber(supplierInfoMapper.selectCount(new LambdaQueryWrapper<SupplierInfo>().isNull(SupplierInfo::getDeletedTime)).intValue());
 
-        Map<Integer,BigDecimal> map1 = new HashMap<>();
+        Map<Integer, BigDecimal> map1 = new HashMap<>();
         List<OrderProduct> orderProducts = orderProductMapper.selectList(new LambdaQueryWrapper<OrderProduct>().isNull(OrderProduct::getDeletedTime).apply("YEAR(created_time) = {0}", year));
         orderProducts.forEach(x -> {
             int month = x.getCreatedTime().getMonth().getValue();
@@ -221,7 +223,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         });
         homeDataVo.setMonthlyOrderTotal(map1);
 
-        Map<Integer,BigDecimal> map2 = new HashMap<>();
+        Map<Integer, BigDecimal> map2 = new HashMap<>();
         List<Orders> ordersList = orderMapper.selectList(new LambdaQueryWrapper<Orders>().isNull(Orders::getDeletedTime).apply("YEAR(order_creation_time) = {0}", year));
         ordersList.forEach(x -> {
             int month = x.getCreatedTime().getMonth().getValue();
@@ -231,7 +233,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         homeDataVo.setIncome(map2);
         List<MaterialInboundRecord> materialInboundRecords = materialInboundRecordMapper.selectList(new LambdaQueryWrapper<MaterialInboundRecord>()
                 .isNull(MaterialInboundRecord::getDeletedTime).apply("YEAR(order_initiated_time) = {0}", year));
-        Map<Integer,BigDecimal> map3 = new HashMap<>();
+        Map<Integer, BigDecimal> map3 = new HashMap<>();
 
         materialInboundRecords.forEach(x -> {
             int month = x.getOrderInitiatedTime().getMonth().getValue();
