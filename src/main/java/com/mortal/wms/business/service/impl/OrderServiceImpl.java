@@ -131,6 +131,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
     @Override
     public ResultResponse receipt(UserVo userVo, OrderReceipt request) {
+        if(request.getReceiptTime()==null){
+            request.setReceiptTime(LocalDateTime.now());
+        }
         orderReceiptMapper.insert(request);
         Orders old = orderMapper.selectById(request.getOrderId());
         if (old == null || old.getDeletedTime() != null) {
