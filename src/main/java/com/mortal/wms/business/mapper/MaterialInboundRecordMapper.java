@@ -20,4 +20,7 @@ public interface MaterialInboundRecordMapper extends BaseMapper<MaterialInboundR
     @Select("select sum(material_left) from material_inbound_record " +
             "where material_name = #{materialName} and supplier_id = #{supplierId} and deleted_time is null and material_left >0")
     Integer getTotalQuantity(String materialName, Integer supplierId);
+
+    @Select("select sum(total_price) from material_inbound_record where deleted_time is null and YEAR(order_initiated_time) = 2025")
+    BigDecimal getTotal(Integer year);
 }

@@ -44,7 +44,7 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         if (supplierInfo == null || supplierInfo.getDeletedTime() != null) {
             throw new BusinessException("该供货商不存在,请检查并重新提交");
         }
-        if (infoCategoriesService.ifExists(materialInboundRecord.getMaterialName())) {
+        if (!infoCategoriesService.ifExists(materialInboundRecord.getMaterialName())) {
             throw new BusinessException("该原料不存在,请联系管理员添加字典");
         }
         //验证单位 入库单位必须是KG
@@ -61,10 +61,10 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         if (materialInboundRecord.getInboundTime() != null) {
             materialInboundRecord.setStatus("已入库");
             materialInboundRecord.setMaterialLeft(materialInboundRecord.getQuantity());
-        }
-        {
+        }else {
             materialInboundRecord.setStatus("未入库");
         }
+        materialInboundRecord.setOrderInitiatedTime(LocalDateTime.now());
         materialInboundRecord.setCreatedTime(LocalDateTime.now());
         materialInboundRecordMapper.insert(materialInboundRecord);
         return ResultResponse.success();
