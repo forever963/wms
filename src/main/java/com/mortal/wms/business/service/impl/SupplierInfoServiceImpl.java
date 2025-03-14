@@ -47,7 +47,9 @@ public class SupplierInfoServiceImpl extends ServiceImpl<SupplierInfoMapper, Sup
     @Override
     public ResultResponse list(UserVo userVo, SupplierInfoPageRequest request) {
         List<SupplierInfo> list = supplierInfoMapper.list(request);
-
+        if(request.getPageNum() == null || request.getPageSize() == null){
+            return ResultResponse.success(list);
+        }
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(),request.getPageSize(),list);
         return ResultResponse.success(pageResult);
     }
