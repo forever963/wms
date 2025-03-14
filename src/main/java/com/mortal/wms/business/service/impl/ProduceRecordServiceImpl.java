@@ -90,7 +90,10 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
     @Override
     public ResultResponse produceRecordList(UserVo userVo, ProductPageRequest request) {
         List<ProductMaterialResponse> materialResponses = produceMaterialMapper.list(null);
-        List<ProduceRecord> list = produceRecordMapper.list();
+        List<ProduceRecord> list = produceRecordMapper.list(request);
+        if(request.getPageNum()==null && request.getPageSize()==null && request.getProductName()!=null){
+            return ResultResponse.success(list);
+        }
         List<ProduceRecordResponse> responses = new ArrayList<>();
         list.stream().forEach(x -> {
             ProduceRecordResponse response = new ProduceRecordResponse();
