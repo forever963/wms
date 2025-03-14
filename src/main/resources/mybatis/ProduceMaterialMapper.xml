@@ -4,8 +4,9 @@
     <select id="list"
             parameterType="com.mortal.wms.business.dto.ProduceMaterialPageRequest"
             resultType="com.mortal.wms.business.vo.ProductMaterialResponse">
-        select pm.*,mir.material_name as materialName from produce_material pm
+        select pm.*,mir.material_name,s.supplier_name as supplierName from produce_material pm
                  left join material_inbound_record mir on pm.material_inbound_record_id = mir.id
+                 left join supplier_info s on s.id = pm.supplier_id
         where pm.deleted_time is null
         <if test="materialName !=null and materialName!=''">
             and mir.material_name like concat('%',#{materialName},'%')
@@ -16,6 +17,6 @@
         <if test="createdTime1 !=null  ">
             and pm.created_time &lt; #{createdTime1}
         </if>
-        order by pm.deleted_time desc
+        order by pm.created_time desc
     </select>
 </mapper>

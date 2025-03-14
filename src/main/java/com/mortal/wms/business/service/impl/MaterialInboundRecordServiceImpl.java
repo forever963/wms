@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -86,6 +87,12 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
     @Override
     public ResultResponse list(UserVo userVo, MaterialInboundRecordPageRequest request) {
         List<MaterialInboundRecordResponse> responseList = materialInboundRecordMapper.list(request);
+        if(request.getPageNum() == null || request.getPageSize() == null) {
+            responseList = responseList.stream().filter(x->
+               x.getMaterialLeft()>0
+            ).collect(Collectors.toList());
+            return ResultResponse.success(responseList);
+        }
         PageResult result = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), responseList);
         return ResultResponse.success(result);
     }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mortal.wms.business.dto.ProduceRecordRequest;
 import com.mortal.wms.business.dto.ProduceMaterialPageRequest;
+import com.mortal.wms.business.dto.ProduceRecordResponse;
 import com.mortal.wms.business.dto.ProductPageRequest;
 import com.mortal.wms.business.entity.MaterialInboundRecord;
 import com.mortal.wms.business.entity.ProduceMaterial;
@@ -15,12 +16,15 @@ import com.mortal.wms.business.vo.UserVo;
 import com.mortal.wms.execption.BusinessException;
 import com.mortal.wms.util.PageResult;
 import com.mortal.wms.util.ResultResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, ProduceRecord> implements ProduceRecordService {
@@ -38,6 +42,7 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
             request.setProduceQuantity(request.getProduceQuantity() * 1000);
             request.setUnit("KG");
         }
+        request.setTotalCost(BigDecimal.ZERO);
         //同步到剩余库存 为了订单出库
         request.setLeftQuantity(request.getProduceQuantity());
         request.setCreatedTime(LocalDateTime.now());
@@ -56,66 +61,25 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
 
             int totalQuantity = materialInboundRecordMapper.getTotalQuantity(x.getMaterialName(), x.getSupplierId());
             if (totalQuantity < x.getQuantityUsed()) {
-                throw new BusinessException(x.getMaterialName()+"原料不足");
+                throw new BusinessException(x.getMaterialName() + "原料不足");
             }
             //原料入库记录表需要做出相应修改
-            //用name 查出该原料 1.未使用完 2.最早一次入库 的记录 TODO
-            List<MaterialInboundRecord> materialInboundRecords = materialInboundRecordMapper.selectList(new LambdaQueryWrapper<MaterialInboundRecord>()
-                    .eq(MaterialInboundRecord::getMaterialName, x.getMaterialName())
-                    .eq(MaterialInboundRecord::getSupplierId, x.getSupplierId())
-                    .ge(MaterialInboundRecord::getMaterialLeft, 0)
-                    .orderByAsc(MaterialInboundRecord::getInboundTime)
-                    .isNull(MaterialInboundRecord::getDeletedTime)
-            );
-            for (MaterialInboundRecord y : materialInboundRecords) {
-                ProduceMaterial produceMaterial = new ProduceMaterial();
-                produceMaterial.setTotalCost(new BigDecimal("0"));
-                produceMaterial.setMaterialName(x.getMaterialName());
-                produceMaterial.setSupplierId(x.getSupplierId());
-                produceMaterial.setProduceRecordId(insert);
-                produceMaterial.setCreatedTime(LocalDateTime.now());
+            //用id 查出该原料的入库记录 修改它的剩余
+            MaterialInboundRecord m = materialInboundRecordMapper.selectById(x.getMaterialInboundRecordId());
 
-
-                //该次入库记录够本次生产的消耗
-                if (y.getMaterialLeft() >= x.getQuantityUsed()) {
-                    produceMaterial.setMaterialInboundRecordId(y.getId());
-                    produceMaterial.setUnit(y.getUnit());
-                    produceMaterial.setTotalCost(produceMaterial.getTotalCost().add(y.getUnitPrice().multiply(new BigDecimal(x.getQuantityUsed()))));
-                    produceMaterial.setCostPerUnit(y.getUnitPrice());
-                    produceMaterial.setQuantityUsed(x.getQuantityUsed());
-                    //原料消耗
-                    y.setMaterialLeft(y.getMaterialLeft() - x.getQuantityUsed());
-                    if (y.getMaterialLeft() > 0) {
-                        y.setStatus("使用中");
-                    } else {
-                        y.setStatus("用尽");
-                    }
-                    //原料记录表消耗
-                    materialInboundRecordMapper.updateById(y);
-                    //记录成本
-                    request.setTotalCost(request.getTotalCost().add(produceMaterial.getTotalCost()));
-                    //原料使用记录表
-                    produceMaterialMapper.insert(produceMaterial);
-                    break;
-                } else {
-                    //不够消耗 则该次入库记录剩余归零 进下一次循环
-                    x.setQuantityUsed(x.getQuantityUsed() - y.getMaterialLeft());
-                    produceMaterial.setMaterialInboundRecordId(y.getId());
-                    produceMaterial.setUnit(y.getUnit());
-                    produceMaterial.setCostPerUnit(y.getUnitPrice());
-                    produceMaterial.setQuantityUsed(y.getQuantity());
-                    produceMaterial.setTotalCost(produceMaterial.getTotalCost().add(y.getUnitPrice().multiply(BigDecimal.valueOf(y.getQuantity()))));
-                    y.setMaterialLeft(0);
-                    y.setStatus("用尽");
-                    //原料记录表消耗
-                    materialInboundRecordMapper.updateById(y);
-                    //记录成本
-                    request.setTotalCost(request.getTotalCost().add(produceMaterial.getTotalCost()));
-                    //原料使用记录表
-                    produceMaterialMapper.insert(produceMaterial);
-                }
-
+            m.setMaterialLeft(m.getMaterialLeft() - x.getQuantityUsed());
+            //删减库存后 修改状态
+            if (m.getMaterialLeft() > 0) {
+                m.setStatus("使用中");
+            } else {
+                m.setStatus("用尽");
             }
+            //更新原料入库记录表的库存
+            materialInboundRecordMapper.updateById(m);
+            //记录成本
+            request.setTotalCost(request.getTotalCost().add(m.getUnitPrice().multiply(new BigDecimal(x.getQuantityUsed()))));
+            //原料使用记录表
+            produceMaterialMapper.insert(x);
         });
 //        //插入生产记录表
         produceRecordMapper.updateById(request);
@@ -125,8 +89,23 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
 
     @Override
     public ResultResponse produceRecordList(UserVo userVo, ProductPageRequest request) {
+        List<ProductMaterialResponse> materialResponses = produceMaterialMapper.list(null);
         List<ProduceRecord> list = produceRecordMapper.list();
-        PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
+        List<ProduceRecordResponse> responses = new ArrayList<>();
+        list.stream().forEach(x -> {
+            ProduceRecordResponse response = new ProduceRecordResponse();
+            List<ProductMaterialResponse> productMaterialResponseList = new ArrayList<>();
+            BeanUtils.copyProperties(x, response);
+            materialResponses.stream().forEach(m -> {
+                if (Objects.equals(x.getId(), m.getProduceRecordId())) {
+                    productMaterialResponseList.add(m);
+                }
+            });
+            response.setProductMaterialResponseList(productMaterialResponseList);
+            responses.add(response);
+        });
+
+        PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), responses);
         return ResultResponse.success(pageResult);
     }
 

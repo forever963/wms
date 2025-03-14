@@ -9,4 +9,6 @@ import lombok.Data;
 public class ProductMaterialResponse extends ProduceMaterial {
     @Schema(description = "原料名")
     private String materialName;
+    @Schema(description = "供货商名")
+    private String supplierName;
 }

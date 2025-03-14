@@ -9,6 +9,7 @@
         <if test="productName !=null and productName != '' ">
             and product_name like concat('%',#{productName},'%')
         </if>
+        order by produce_record.created_time desc
     </select>
 
     <select id="total"
