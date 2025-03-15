@@ -28,7 +28,7 @@
         <if test="materialLeft !=null  ">
             m.material_left = #{materialLeft}
         </if>
-        order by m.created_time desc
+        order by m.inbound_time desc
     </select>
 
     <select id="totalList" parameterType="com.mortal.wms.business.dto.MaterialInboundRecordPageRequest"
