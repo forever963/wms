@@ -13,4 +13,6 @@ public interface InfoCategoriesService extends IService<InfoCategories> {
     Boolean ifExists(String name);
 
     ResultResponse list(InfoCategoriesRequest request);
+
+    ResultResponse add(InfoCategories request);
 }

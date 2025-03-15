@@ -1,5 +1,6 @@
 package com.mortal.wms.business.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mortal.wms.business.dto.InfoCategoriesRequest;
 import com.mortal.wms.business.entity.InfoCategories;
@@ -30,8 +31,30 @@ public class InfoCategoriesServiceImpl extends ServiceImpl<InfoCategoriesMapper,
 
     @Override
     public ResultResponse list(InfoCategoriesRequest request) {
+        if(request.getPageNum() == null && request.getType() != null) {
+            List<InfoCategories> list = infoCategoriesMapper.list(request.getType());
+            return ResultResponse.success(list);
+        }
         List<InfoCategories> list = infoCategoriesMapper.list(request.getType());
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
         return ResultResponse.success(pageResult);
+    }
+
+    @Override
+    public ResultResponse add(InfoCategories request) {
+        InfoCategories infoCategories = infoCategoriesMapper.selectOne(new LambdaQueryWrapper<InfoCategories>()
+                .eq(InfoCategories::getType, request.getType())
+                .orderByDesc(InfoCategories::getDisplayOrder)
+                .last("limit 1")
+        );
+        request.setSearch(request.getName());
+        //设置排序
+        if(infoCategories == null) {
+            request.setDisplayOrder(0);
+        }else{
+            request.setDisplayOrder(infoCategories.getDisplayOrder()+1);
+        }
+        infoCategoriesMapper.insert(request);
+        return ResultResponse.success();
     }
 }
