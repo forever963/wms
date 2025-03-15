@@ -257,7 +257,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         Map<Integer, BigDecimal> map3 = new HashMap<>();
         if (materialInboundRecords != null) {
             materialInboundRecords.forEach(x -> {
-                int month = x.getOrderInitiatedTime().getMonth().getValue();
+                int month = x.getInboundTime().getMonth().getValue();
                 BigDecimal currentProductTotalPrice = x.getTotalPrice();
                 map3.merge(month, currentProductTotalPrice, BigDecimal::add);
             });
