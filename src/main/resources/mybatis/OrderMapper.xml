@@ -8,6 +8,6 @@
     <if test="customerName!=null and customerName!=''">
         si.customer_name like concat('%',#{customerName},'%')
     </if>
-    order by o.created_time desc
+    order by o.order_creation_time desc
 </select>
 </mapper>
