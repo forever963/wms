@@ -156,7 +156,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public ResultResponse outbound(UserVo userVo, OrderOutBoundRequest request) {
         //订单产品
         OrderProduct old = orderProductMapper.selectById(request.getOrderProductId());
-
+        if (request.getOutboundTime() == null) {
+            request.setOutboundTime(LocalDateTime.now());
+        }
         List<ProductOutboundRecord> list = new ArrayList<>();
         //
         Map<Integer, ProduceRecord> produceRecordMap = produceRecordMapper.selectList(new LambdaQueryWrapper<ProduceRecord>()
