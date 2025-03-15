@@ -36,7 +36,21 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
         if (existPhone != null) {
             return ResultResponse.error("联系电话已存在");
         }
-
+        // 校验传真是否与其他客户重复
+        CustomerInfo existFax = customerInfoMapper.selectByFax(customer.getFax());
+        if (existFax != null) {
+            return ResultResponse.error("传真号已存在");
+        }
+        // 校验邮箱是否与其他客户重复
+        CustomerInfo existEmail = customerInfoMapper.selectByEmail(customer.getEmail());
+        if (existEmail != null) {
+            return ResultResponse.error("邮箱已存在");
+        }
+        // 校验办公号码是否与其他客户重复
+        CustomerInfo existOfficePhone = customerInfoMapper.selectByOfficePhone(customer.getOfficePhone());
+        if (existOfficePhone != null) {
+            return ResultResponse.error("办公号码已存在");
+        }
         int result = customerInfoMapper.insert(customer);
         return result > 0 ? ResultResponse.success() : ResultResponse.error();
     }
@@ -66,6 +80,21 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
         CustomerInfo existPhone = customerInfoMapper.selectByContactPhone(customer.getContactPhone());
         if (existPhone != null && !existPhone.getId().equals(customer.getId())) {
             return ResultResponse.error("联系电话已存在");
+        }
+        // 校验传真是否与其他客户重复
+        CustomerInfo existFax = customerInfoMapper.selectByFax(customer.getFax());
+        if (existFax != null && !existFax.getId().equals(customer.getId())) {
+            return ResultResponse.error("传真号已存在");
+        }
+        // 校验邮箱是否与其他客户重复
+        CustomerInfo existEmail = customerInfoMapper.selectByEmail(customer.getEmail());
+        if (existEmail != null && !existEmail.getId().equals(customer.getId())) {
+            return ResultResponse.error("邮箱号已存在");
+        }
+        // 校验办公号码是否与其他客户重复
+        CustomerInfo existOfficePhone = customerInfoMapper.selectByOfficePhone(customer.getOfficePhone());
+        if (existOfficePhone != null && !existOfficePhone.getId().equals(customer.getId())) {
+            return ResultResponse.error("办公号码已存在");
         }
         customer.setModifiedTime(LocalDateTime.now());
         int result = customerInfoMapper.updateById(customer);
