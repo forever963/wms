@@ -1,5 +1,6 @@
 package com.mortal.wms.business.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mortal.wms.business.dto.SupplierInfoPageRequest;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class SupplierInfoServiceImpl extends ServiceImpl<SupplierInfoMapper, SupplierInfo> implements SupplierInfoService {
     @Autowired
@@ -25,8 +27,16 @@ public class SupplierInfoServiceImpl extends ServiceImpl<SupplierInfoMapper, Sup
 
     @Override
     public ResultResponse add(UserVo userVo, SupplierInfo supplierInfo) {
-        if(supplierInfo.getSupplierName()==null || supplierInfo.getSupplierName().isEmpty()){
+        if (supplierInfo.getSupplierName() == null || supplierInfo.getSupplierName().isEmpty()) {
             throw new BusinessException("供货商名不能为空");
+        }
+        SupplierInfo s = supplierInfoMapper.selectOne(new LambdaQueryWrapper<SupplierInfo>()
+                .eq(SupplierInfo::getSupplierName, supplierInfo.getSupplierName())
+                .isNull(SupplierInfo::getDeletedTime)
+                .last("limit 1")
+        );
+        if (s != null) {
+            return ResultResponse.error("该供货商已存在");
         }
         supplierInfo.setCreatedTime(LocalDateTime.now());
         supplierInfoMapper.insert(supplierInfo);
@@ -47,10 +57,10 @@ public class SupplierInfoServiceImpl extends ServiceImpl<SupplierInfoMapper, Sup
     @Override
     public ResultResponse list(UserVo userVo, SupplierInfoPageRequest request) {
         List<SupplierInfo> list = supplierInfoMapper.list(request);
-        if(request.getPageNum() == null || request.getPageSize() == null){
+        if (request.getPageNum() == null || request.getPageSize() == null) {
             return ResultResponse.success(list);
         }
-        PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(),request.getPageSize(),list);
+        PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
         return ResultResponse.success(pageResult);
     }
 
@@ -68,6 +78,15 @@ public class SupplierInfoServiceImpl extends ServiceImpl<SupplierInfoMapper, Sup
         SupplierInfo old = supplierInfoMapper.selectById(supplierInfo.getId());
         if (old == null || old.getDeletedTime() != null) {
             throw new BusinessException("该记录不存在");
+        }
+        SupplierInfo s = supplierInfoMapper.selectOne(new LambdaQueryWrapper<SupplierInfo>()
+                .eq(SupplierInfo::getSupplierName, supplierInfo.getSupplierName())
+                .isNull(SupplierInfo::getDeletedTime)
+                .ne(SupplierInfo::getId, old.getId())
+                .last("limit 1")
+        );
+        if (s != null && !s.getId().equals(old.getId())) {
+            return ResultResponse.error("该供货商已存在");
         }
         old.setModifiedTime(LocalDateTime.now());
         BeanUtils.copyProperties(supplierInfo, old);

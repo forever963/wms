@@ -15,4 +15,13 @@ public interface CustomerInfoMapper extends BaseMapper<CustomerInfo> {
     // 自定义查询：根据联系电话查询客户
     @Select("SELECT * FROM customer_info WHERE contact_phone = #{phone} AND deleted_time IS NULL")
     CustomerInfo selectByContactPhone(@Param("phone") String phone);
+
+    @Select("SELECT * FROM customer_info WHERE fax = #{fax} AND deleted_time IS NULL")
+    CustomerInfo selectByFax(@Param("fax") String fax);
+
+    @Select("SELECT * FROM customer_info WHERE email = #{email} AND deleted_time IS NULL")
+    CustomerInfo selectByEmail(@Param("email") String email);
+
+    @Select("SELECT * FROM customer_info WHERE office_phone = #{officePhone} AND deleted_time IS NULL")
+    CustomerInfo selectByOfficePhone(@Param("officePhone") String officePhone);
 }

@@ -211,39 +211,59 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     public ResultResponse homeData(Integer year) {
         HomeDataVo homeDataVo = new HomeDataVo();
 
-        homeDataVo.setAnnualOrderTotal(orderProductMapper.getAnnualOrderTotal(year).divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP));
-        homeDataVo.setRestockAnnualTotal(materialInboundRecordMapper.getTotal(year).divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP));
-        homeDataVo.setCustomerNumber(customerInfoMapper.selectCount(new LambdaQueryWrapper<CustomerInfo>().isNull(CustomerInfo::getDeletedTime)).intValue());
-        homeDataVo.setSupplierNumber(supplierInfoMapper.selectCount(new LambdaQueryWrapper<SupplierInfo>().isNull(SupplierInfo::getDeletedTime)).intValue());
+        // 设置年度订单总额，如果为null则设置为0
+        BigDecimal annualOrderTotal = orderProductMapper.getAnnualOrderTotal(year);
+        homeDataVo.setAnnualOrderTotal(annualOrderTotal != null ? annualOrderTotal.divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
 
+        // 设置年度补货总额，如果为null则设置为0
+        BigDecimal restockAnnualTotal = materialInboundRecordMapper.getTotal(year);
+        homeDataVo.setRestockAnnualTotal(restockAnnualTotal != null ? restockAnnualTotal.divide(new BigDecimal("10000"), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO);
+
+        // 设置客户数量，如果为null则设置为0
+        Integer customerNumber = customerInfoMapper.selectCount(new LambdaQueryWrapper<CustomerInfo>().isNull(CustomerInfo::getDeletedTime)).intValue();
+        homeDataVo.setCustomerNumber(customerNumber != null ? customerNumber : 0);
+
+        // 设置供应商数量，如果为null则设置为0
+        Integer supplierNumber = supplierInfoMapper.selectCount(new LambdaQueryWrapper<SupplierInfo>().isNull(SupplierInfo::getDeletedTime)).intValue();
+        homeDataVo.setSupplierNumber(supplierNumber != null ? supplierNumber : 0);
+
+        // 设置月度订单总额，如果为null则设置为空Map
         Map<Integer, BigDecimal> map1 = new HashMap<>();
         List<OrderProduct> orderProducts = orderProductMapper.selectList(new LambdaQueryWrapper<OrderProduct>().isNull(OrderProduct::getDeletedTime).apply("YEAR(created_time) = {0}", year));
-        orderProducts.forEach(x -> {
-            int month = x.getCreatedTime().getMonth().getValue();
-            BigDecimal currentProductTotalPrice = x.getUnitPrice().multiply(BigDecimal.valueOf(x.getQuantity()));
-            map1.merge(month, currentProductTotalPrice, BigDecimal::add);
-        });
+        if (orderProducts != null) {
+            orderProducts.forEach(x -> {
+                int month = x.getCreatedTime().getMonth().getValue();
+                BigDecimal currentProductTotalPrice = x.getUnitPrice().multiply(BigDecimal.valueOf(x.getQuantity()));
+                map1.merge(month, currentProductTotalPrice, BigDecimal::add);
+            });
+        }
         homeDataVo.setMonthlyOrderTotal(map1);
 
+        // 设置月度收入，如果为null则设置为空Map
         Map<Integer, BigDecimal> map2 = new HashMap<>();
         List<Orders> ordersList = orderMapper.selectList(new LambdaQueryWrapper<Orders>().isNull(Orders::getDeletedTime).apply("YEAR(order_creation_time) = {0}", year));
-        ordersList.forEach(x -> {
-            int month = x.getCreatedTime().getMonth().getValue();
-            BigDecimal currentProductTotalPrice = x.getPaidAmount();
-            map2.merge(month, currentProductTotalPrice, BigDecimal::add);
-        });
+        if (ordersList != null) {
+            ordersList.forEach(x -> {
+                int month = x.getCreatedTime().getMonth().getValue();
+                BigDecimal currentProductTotalPrice = x.getPaidAmount();
+                map2.merge(month, currentProductTotalPrice, BigDecimal::add);
+            });
+        }
         homeDataVo.setIncome(map2);
+
+        // 设置月度支出，如果为null则设置为空Map
         List<MaterialInboundRecord> materialInboundRecords = materialInboundRecordMapper.selectList(new LambdaQueryWrapper<MaterialInboundRecord>()
                 .isNull(MaterialInboundRecord::getDeletedTime).apply("YEAR(order_initiated_time) = {0}", year));
         Map<Integer, BigDecimal> map3 = new HashMap<>();
-
-        materialInboundRecords.forEach(x -> {
-            int month = x.getOrderInitiatedTime().getMonth().getValue();
-            BigDecimal currentProductTotalPrice = x.getTotalPrice();
-            map3.merge(month, currentProductTotalPrice, BigDecimal::add);
-        });
-
+        if (materialInboundRecords != null) {
+            materialInboundRecords.forEach(x -> {
+                int month = x.getOrderInitiatedTime().getMonth().getValue();
+                BigDecimal currentProductTotalPrice = x.getTotalPrice();
+                map3.merge(month, currentProductTotalPrice, BigDecimal::add);
+            });
+        }
         homeDataVo.setExpense(map3);
+
         return ResultResponse.success(homeDataVo);
     }
 }
