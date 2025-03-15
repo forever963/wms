@@ -246,29 +246,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         }
         homeDataVo.setMonthlyOrderTotal(map1);
 
+        homeDataVo.setIncomeTotal(BigDecimal.ZERO);
         // 设置月度收入，如果为null则设置为空Map
         Map<Integer, BigDecimal> map2 = new HashMap<>();
-        List<Orders> ordersList = orderMapper.selectList(new LambdaQueryWrapper<Orders>().isNull(Orders::getDeletedTime).apply("YEAR(order_creation_time) = {0}", year));
-        if (ordersList != null) {
-            ordersList.forEach(x -> {
-                int month = x.getCreatedTime().getMonth().getValue();
-                BigDecimal currentProductTotalPrice = x.getPaidAmount();
+        List<OrderReceipt> receipts = orderReceiptMapper.selectList(new LambdaQueryWrapper<OrderReceipt>().isNull(OrderReceipt::getDeletedTime).apply("YEAR(receipt_time) = {0}", year));
+        if (receipts != null) {
+            receipts.forEach(x -> {
+                int month = x.getReceiptTime().getMonth().getValue();
+                BigDecimal currentProductTotalPrice = x.getAmountReceived();
+                homeDataVo.setIncomeTotal(homeDataVo.getIncomeTotal().add(currentProductTotalPrice));
                 map2.merge(month, currentProductTotalPrice, BigDecimal::add);
             });
         }
         homeDataVo.setIncome(map2);
 
+
+
+        Map<Integer, BigDecimal> map3 = new HashMap<>();
         // 设置月度支出，如果为null则设置为空Map
         List<MaterialInboundRecord> materialInboundRecords = materialInboundRecordMapper.selectList(new LambdaQueryWrapper<MaterialInboundRecord>()
                 .isNull(MaterialInboundRecord::getDeletedTime).apply("YEAR(order_initiated_time) = {0}", year));
-        Map<Integer, BigDecimal> map3 = new HashMap<>();
+
+        homeDataVo.setExpenseTotal(BigDecimal.ZERO);
         if (materialInboundRecords != null) {
             materialInboundRecords.forEach(x -> {
                 int month = x.getInboundTime().getMonth().getValue();
                 BigDecimal currentProductTotalPrice = x.getTotalPrice();
+                homeDataVo.setExpenseTotal(homeDataVo.getExpenseTotal().add(currentProductTotalPrice));
                 map3.merge(month, currentProductTotalPrice, BigDecimal::add);
             });
         }
+
         homeDataVo.setExpense(map3);
 
         return ResultResponse.success(homeDataVo);

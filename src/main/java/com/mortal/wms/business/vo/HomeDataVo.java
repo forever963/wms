@@ -20,6 +20,10 @@ public class HomeDataVo implements Serializable {
     Integer supplierNumber;
     @Schema(description = "月度订单总额")
     Map<Integer,BigDecimal> monthlyOrderTotal;
+    @Schema(description = "年度总收款")
+    BigDecimal incomeTotal;
+    @Schema(description = "年度总支出")
+    BigDecimal expenseTotal;
     @Schema(description = "收款")
     Map<Integer,BigDecimal> income;
     @Schema(description = "支出")
