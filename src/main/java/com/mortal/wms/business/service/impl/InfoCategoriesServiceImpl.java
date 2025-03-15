@@ -47,6 +47,12 @@ public class InfoCategoriesServiceImpl extends ServiceImpl<InfoCategoriesMapper,
                 .orderByDesc(InfoCategories::getDisplayOrder)
                 .last("limit 1")
         );
+        InfoCategories name = infoCategoriesMapper.selectOne(new LambdaQueryWrapper<InfoCategories>()
+                .eq(InfoCategories::getName, request.getName())
+        );
+        if(name !=null){
+            return ResultResponse.error("该字典名已存在");
+        }
         request.setSearch(request.getName());
         //设置排序
         if(infoCategories == null) {
