@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, ProduceRecord> implements ProduceRecordService {
@@ -92,6 +93,7 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
         List<ProductMaterialResponse> materialResponses = produceMaterialMapper.list(null);
         List<ProduceRecord> list = produceRecordMapper.list(request);
         if(request.getPageNum()==null && request.getPageSize()==null && request.getProductName()!=null){
+            list = list.stream().filter(x->x.getLeftQuantity()!=0).collect(Collectors.toList());
             return ResultResponse.success(list);
         }
         List<ProduceRecordResponse> responses = new ArrayList<>();
