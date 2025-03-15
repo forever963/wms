@@ -87,6 +87,9 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
                 .isNull(CustomerInfo::getDeletedTime)
                 .orderByDesc(CustomerInfo::getCreatedTime)
         );
+        if(request.getPageNum()==null && request.getPageSize()==null){
+            return ResultResponse.success(customers);
+        }
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), customers);
         return ResultResponse.success(pageResult);
     }
