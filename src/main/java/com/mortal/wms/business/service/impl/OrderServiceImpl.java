@@ -113,6 +113,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
     @Override
     public ResultResponse addOrder(UserVo userVo, OrdersRequest request) {
+        Orders num = orderMapper.selectOne(new LambdaQueryWrapper<Orders>()
+                .isNull(Orders::getDeletedTime)
+                .eq(Orders::getOrderNum, request.getOrderNum())
+        );
+        if(num != null) {
+            return ResultResponse.error("合同编号已存在");
+        }
         //验证产品名是否在字典中
         List<String> namesByType = infoCategoriesService.getNamesByType(3);
         Orders orders = new Orders();
@@ -123,7 +130,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             if (!namesByType.contains(x.getProductName())) {
                 throw new BusinessException(x.getProductName() + "该产品名不存在 请添加字典");
             }
-            x.setCreatedTime(LocalDateTime.now());
+            x.setCreatedTime(request.getOrderCreationTime());
             x.setOrderId(orders.getId());
         });
         //批量插入
