@@ -37,10 +37,11 @@ public class UsersController {
         return login;
     }
 
+    @JwtIgnore
     @Operation(summary = "新增")
     @PostMapping("/user")
-    public ResultResponse addUser(@CurrentUser UserVo userVo, @Valid @RequestBody Users users) throws ParseException {
-        ResultResponse response = userService.addUser(userVo, users);
+    public ResultResponse addUser(@Valid @RequestBody Users users) throws ParseException {
+        ResultResponse response = userService.addUser(users);
         return response;
     }
 

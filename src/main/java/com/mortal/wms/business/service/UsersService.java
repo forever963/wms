@@ -14,7 +14,7 @@ public interface UsersService extends IService<Users> {
 
     ResultResponse login(UsersLoginRequest userLoginQo, HttpServletRequest request, HttpServletResponse response);
 
-    ResultResponse addUser(UserVo userVo, Users users);
+    ResultResponse addUser(Users users);
 
     ResultResponse detail(UserVo userVo,Integer id);
 

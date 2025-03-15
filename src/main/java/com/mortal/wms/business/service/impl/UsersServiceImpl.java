@@ -69,7 +69,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
     @Override
     @Transactional
-    public ResultResponse addUser(UserVo userVo, Users users) {
+    public ResultResponse addUser(Users users) {
         if (usersMapper.selectCount(new LambdaUpdateWrapper<Users>()
                 .eq(Users::getPhone, users.getPassword())
                 .isNull(Users::getDeletedTime)
@@ -81,10 +81,10 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         users.setPassword(Argon2Util.hashPassword(users.getPassword()));
         usersMapper.insert(users);
 
-        LogOperations logOperationsEntity = new LogOperations();
-        logOperationsEntity.setContent("添加了用户:" + users.getName());
-        logOperationsEntity.setCreatedTime(LocalDateTime.now());
-        logOperationsService.addLogOperations(userVo, logOperationsEntity);
+//        LogOperations logOperationsEntity = new LogOperations();
+//        logOperationsEntity.setContent("添加了用户:" + users.getName());
+//        logOperationsEntity.setCreatedTime(LocalDateTime.now());
+//        logOperationsService.addLogOperations(null,logOperationsEntity);
         return ResultResponse.success();
     }
 
