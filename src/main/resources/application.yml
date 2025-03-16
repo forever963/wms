@@ -2,7 +2,7 @@ spring:
   application:
     name: wms
   profiles:
-    active: local
+    active: dev
 server:
   servlet:
     context-path: /wms/api
@@ -19,9 +19,9 @@ mybatis-plus:
 knife4j:
   enable: true
   basic:
-    enable: false
-    username: develop
-    password: niceday123
+    enable: true
+    username: root
+    password: srgwx7yin!
 audience:
   clientId: 098f6bcd4621d373cade4e832627b4f6
   base64Secret: MDk4ZjZiY2Q0NjIxZDM3M2NhZGU0ZTgzMjYyN2I0ZjY=
