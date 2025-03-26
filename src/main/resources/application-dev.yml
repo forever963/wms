@@ -2,9 +2,7 @@ server:
   port: 8080
 spring:
   datasource:
-    username: root
-    password: "srgwx7yin!"
-    url: jdbc:mysql://8.155.53.82:3306/wms?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=Asia/Shanghai&allowMultiQueries=true
+
     driver-class-name: com.mysql.cj.jdbc.Driver
 logging:
   level:
