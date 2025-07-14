@@ -23,7 +23,7 @@ public class MaterialInboundRecord implements Serializable {
     private String materialName;
 
     @Schema(description = "数量", required = true)
-    private Integer quantity;
+    private BigDecimal quantity;
 
     @Schema(description = "单位", required = true, maxLength = 50, example = "KG/T")
     private String unit;

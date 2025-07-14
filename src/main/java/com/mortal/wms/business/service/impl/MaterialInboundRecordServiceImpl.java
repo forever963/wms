@@ -50,18 +50,18 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         }
         //验证单位 入库单位必须是KG
         if (materialInboundRecord.getUnit().equals("T")) {
-            materialInboundRecord.setQuantity(materialInboundRecord.getQuantity() * 1000);
+            materialInboundRecord.setQuantity(materialInboundRecord.getQuantity() .multiply(new BigDecimal(1000)));
             materialInboundRecord.setUnitPrice(materialInboundRecord.getUnitPrice().divide(new BigDecimal(1000)));
             materialInboundRecord.setUnit("KG");
         }
         //验证税率 税费
-        if (materialInboundRecord.getUnitPrice().multiply(new BigDecimal(materialInboundRecord.getQuantity())).compareTo(materialInboundRecord.getTotalPrice()) != 0) {
+        if (materialInboundRecord.getUnitPrice().multiply(materialInboundRecord.getQuantity()).compareTo(materialInboundRecord.getTotalPrice()) != 0) {
             throw new BusinessException("含税总金额计算错误 请检查并重新提交");
         }
         //如果已入库
         if (materialInboundRecord.getInboundTime() != null) {
             materialInboundRecord.setStatus("已入库");
-            materialInboundRecord.setMaterialLeft(materialInboundRecord.getQuantity());
+            materialInboundRecord.setMaterialLeft(materialInboundRecord.getQuantity().intValue());
         }else {
             materialInboundRecord.setStatus("未入库");
         }
@@ -104,7 +104,7 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
             throw new BusinessException("该记录不存在");
         }
         old.setInboundTime(LocalDateTime.now());
-        old.setMaterialLeft(old.getQuantity());
+        old.setMaterialLeft(old.getQuantity().intValue());
         old.setStatus("已入库");
         materialInboundRecordMapper.updateById(old);
         return ResultResponse.success();
