@@ -51,12 +51,13 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         //验证单位 入库单位必须是KG
         if (materialInboundRecord.getUnit().equals("T")) {
             materialInboundRecord.setQuantity(materialInboundRecord.getQuantity() .multiply(new BigDecimal(1000)));
-            materialInboundRecord.setUnitPrice(materialInboundRecord.getUnitPrice().divide(new BigDecimal(1000)));
+            //materialInboundRecord.setUnitPrice(materialInboundRecord.getUnitPrice().divide(new BigDecimal(1000)));
             materialInboundRecord.setUnit("KG");
         }
         //验证税率 税费
         if (materialInboundRecord.getUnitPrice().multiply(materialInboundRecord.getQuantity()).compareTo(materialInboundRecord.getTotalPrice()) != 0) {
-            throw new BusinessException("含税总金额计算错误 请检查并重新提交");
+
+            throw new BusinessException("含税总金额计算错误 请检查并重新提交"+materialInboundRecord.getUnitPrice().multiply(materialInboundRecord.getQuantity()));
         }
         //如果已入库
         if (materialInboundRecord.getInboundTime() != null) {
