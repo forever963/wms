@@ -15,8 +15,9 @@ public class InfoCategoriesController {
     InfoCategoriesService infoCategoriesService;
 
     @Operation(summary = "字典列表")
-    @GetMapping("/list")
-    private ResultResponse list(InfoCategoriesRequest request) {
+    @PostMapping("/list")
+    private ResultResponse list(@RequestBody InfoCategoriesRequest request) {
+        System.out.println(request.toString());
         return infoCategoriesService.list(request);
     }
 

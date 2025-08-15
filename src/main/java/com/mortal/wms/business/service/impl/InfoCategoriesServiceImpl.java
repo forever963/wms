@@ -32,10 +32,10 @@ public class InfoCategoriesServiceImpl extends ServiceImpl<InfoCategoriesMapper,
     @Override
     public ResultResponse list(InfoCategoriesRequest request) {
         if(request.getPageNum() == null && request.getType() != null) {
-            List<InfoCategories> list = infoCategoriesMapper.list(request.getType());
+            List<InfoCategories> list = infoCategoriesMapper.list(request);
             return ResultResponse.success(list);
         }
-        List<InfoCategories> list = infoCategoriesMapper.list(request.getType());
+        List<InfoCategories> list = infoCategoriesMapper.list(request);
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
         return ResultResponse.success(pageResult);
     }

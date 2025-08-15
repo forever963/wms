@@ -6,4 +6,5 @@ import lombok.Data;
 @Data
 public class InfoCategoriesRequest extends PageRequest {
     Integer type;
+    String description;
 }

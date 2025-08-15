@@ -1,6 +1,7 @@
 package com.mortal.wms.business.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mortal.wms.business.dto.InfoCategoriesRequest;
 import com.mortal.wms.business.entity.InfoCategories;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -10,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface InfoCategoriesMapper extends BaseMapper<InfoCategories> {
 
-    List<InfoCategories> list(Integer type);
+    List<InfoCategories> list(InfoCategoriesRequest type);
 
     @Select("select count(*) from info_categories where name = #{name}")
     Integer get(String name);
