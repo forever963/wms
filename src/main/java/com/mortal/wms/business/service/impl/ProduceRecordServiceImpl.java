@@ -123,7 +123,7 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
 
     @Override
     public ResultResponse totalList(UserVo userVo, ProductPageRequest request) {
-        List<ProduceRecord> list = produceRecordMapper.total();
+        List<ProduceRecord> list = produceRecordMapper.total(request);
         PageResult result = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
         return ResultResponse.success(result);
     }

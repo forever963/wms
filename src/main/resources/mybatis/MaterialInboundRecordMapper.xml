@@ -44,12 +44,12 @@
         left join supplier_info s on s.id = m.supplier_id
         where m.deleted_time is null
         and m.material_left > 0
-        <if test="materialName !=null and materialName !='' ">
-            and m.material_name like concat('%',#{materialName},'%')
-        </if>
-        <if test="supplierId !=null ">
-            and m.supplier_id = #{supplierId}
-        </if>
+            <if test="materialName !=null and materialName !='' ">
+                and m.material_name like concat('%',#{materialName},'%')
+            </if>
+            <if test="supplierId !=null and supplierId != 0">
+                and m.supplier_id = #{supplierId}
+            </if>
         group by material_name, unit, supplier_id;
     </select>
 </mapper>

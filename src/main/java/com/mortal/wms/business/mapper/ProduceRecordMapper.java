@@ -11,5 +11,5 @@ import java.util.List;
 public interface ProduceRecordMapper extends BaseMapper<ProduceRecord> {
     List<ProduceRecord> list(ProductPageRequest request);
 
-    List<ProduceRecord> total();
+    List<ProduceRecord> total(ProductPageRequest request);
 }
