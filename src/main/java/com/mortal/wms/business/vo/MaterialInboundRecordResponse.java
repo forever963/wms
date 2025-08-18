@@ -10,4 +10,6 @@ import java.io.Serializable;
 public class MaterialInboundRecordResponse extends MaterialInboundRecord implements Serializable {
     @Schema(description = "供货商名称", required = true, maxLength = 32, example = "ABC公司")
     private String supplierName;
+    @Schema(description = "描述", required = true)
+    private String description;
 }

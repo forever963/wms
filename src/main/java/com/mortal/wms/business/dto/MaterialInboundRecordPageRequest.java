@@ -26,4 +26,6 @@ public class MaterialInboundRecordPageRequest extends PageRequest {
     private String inboundTime1;
     @Schema(description = "原料剩余")
     private Integer materialLeft;
+    @Schema(description = "描述")
+    private String description;
 }

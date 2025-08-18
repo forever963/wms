@@ -4,8 +4,9 @@
     <select id="list" parameterType="com.mortal.wms.business.dto.MaterialInboundRecordPageRequest"
             resultType="com.mortal.wms.business.vo.MaterialInboundRecordResponse"
     >
-        select * from material_inbound_record m
+        select m.*,info.description as description,s.supplier_name as supplierName from material_inbound_record m
         left join supplier_info s on m.supplier_id = s.id
+        left join info_categories info on info.name = m.material_name
         where m.deleted_time is null
         <if test="materialName !=null and materialName !='' ">
             and m.material_name like concat('%',#{materialName},'%')
@@ -26,7 +27,10 @@
             and m.inbound_time &lt; #{inboundTime1}
         </if>
         <if test="materialLeft !=null  ">
-            m.material_left = #{materialLeft}
+            and m.material_left = #{materialLeft}
+        </if>
+        <if test="description != null and description != '' ">
+            and info.description = #{description}
         </if>
         order by m.inbound_time desc
     </select>
