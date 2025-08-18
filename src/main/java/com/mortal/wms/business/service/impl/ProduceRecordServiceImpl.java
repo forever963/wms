@@ -50,38 +50,41 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
         //插入 拿到主键id
         produceRecordMapper.insert(request);
         int insert = request.getId();
-        //检查原料消耗 并写入原料消耗记录
-        request.getProduceMaterialList().stream().forEach(x -> {
-            if (x.getUnit().equals("T")) {
-                x.setQuantityUsed(x.getQuantityUsed() * 1000);
-                x.setUnit("KG");
-            }
-            //生产总成本 = 各次 原料使用成本相加
-            x.setProduceRecordId(insert);
-            x.setCreatedTime(LocalDateTime.now());
+        //检查原料消耗
+        if (!request.getProduceMaterialList().isEmpty() && request.getProduceMaterialList().get(0).getId()!=null) {
+            //如果有原料消耗 则写入原料消耗记录
+            request.getProduceMaterialList().stream().forEach(x -> {
+                if (x.getUnit().equals("T")) {
+                    x.setQuantityUsed(x.getQuantityUsed() * 1000);
+                    x.setUnit("KG");
+                }
+                //生产总成本 = 各次 原料使用成本相加
+                x.setProduceRecordId(insert);
+                x.setCreatedTime(LocalDateTime.now());
 
-            int totalQuantity = materialInboundRecordMapper.getTotalQuantity(x.getMaterialName(), x.getSupplierId());
-            if (totalQuantity < x.getQuantityUsed()) {
-                throw new BusinessException(x.getMaterialName() + "原料不足");
-            }
-            //原料入库记录表需要做出相应修改
-            //用id 查出该原料的入库记录 修改它的剩余
-            MaterialInboundRecord m = materialInboundRecordMapper.selectById(x.getMaterialInboundRecordId());
+                int totalQuantity = materialInboundRecordMapper.getTotalQuantity(x.getMaterialName(), x.getSupplierId());
+                if (totalQuantity < x.getQuantityUsed()) {
+                    throw new BusinessException(x.getMaterialName() + "原料不足");
+                }
+                //原料入库记录表需要做出相应修改
+                //用id 查出该原料的入库记录 修改它的剩余
+                MaterialInboundRecord m = materialInboundRecordMapper.selectById(x.getMaterialInboundRecordId());
 
-            m.setMaterialLeft(m.getMaterialLeft() - x.getQuantityUsed());
-            //删减库存后 修改状态
-            if (m.getMaterialLeft() > 0) {
-                m.setStatus("使用中");
-            } else {
-                m.setStatus("用尽");
-            }
-            //更新原料入库记录表的库存
-            materialInboundRecordMapper.updateById(m);
-            //记录成本
-            request.setTotalCost(request.getTotalCost().add(m.getUnitPrice().multiply(new BigDecimal(x.getQuantityUsed()))));
-            //原料使用记录表
-            produceMaterialMapper.insert(x);
-        });
+                m.setMaterialLeft(m.getMaterialLeft() - x.getQuantityUsed());
+                //删减库存后 修改状态
+                if (m.getMaterialLeft() > 0) {
+                    m.setStatus("使用中");
+                } else {
+                    m.setStatus("用尽");
+                }
+                //更新原料入库记录表的库存
+                materialInboundRecordMapper.updateById(m);
+                //记录成本
+                request.setTotalCost(request.getTotalCost().add(m.getUnitPrice().multiply(new BigDecimal(x.getQuantityUsed()))));
+                //原料使用记录表
+                produceMaterialMapper.insert(x);
+            });
+        }
 //        //插入生产记录表
         produceRecordMapper.updateById(request);
 
@@ -92,8 +95,8 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
     public ResultResponse produceRecordList(UserVo userVo, ProductPageRequest request) {
         List<ProductMaterialResponse> materialResponses = produceMaterialMapper.list(null);
         List<ProduceRecord> list = produceRecordMapper.list(request);
-        if(request.getPageNum()==null && request.getPageSize()==null && request.getProductName()!=null){
-            list = list.stream().filter(x->x.getLeftQuantity()!=0).collect(Collectors.toList());
+        if (request.getPageNum() == null && request.getPageSize() == null && request.getProductName() != null) {
+            list = list.stream().filter(x -> x.getLeftQuantity() != 0).collect(Collectors.toList());
             return ResultResponse.success(list);
         }
         List<ProduceRecordResponse> responses = new ArrayList<>();
