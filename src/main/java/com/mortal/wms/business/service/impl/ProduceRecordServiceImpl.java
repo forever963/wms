@@ -51,28 +51,30 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
         produceRecordMapper.insert(request);
         int insert = request.getId();
         //检查原料消耗
-        if (!request.getProduceMaterialList().isEmpty() && request.getProduceMaterialList().get(0).getId()!=null) {
+        if (!request.getProduceMaterialList().isEmpty()) {
             //如果有原料消耗 则写入原料消耗记录
-            request.getProduceMaterialList().stream().forEach(x -> {
+            request.getProduceMaterialList().stream()
+                    .filter(x -> x.getMaterialInboundRecordId() != 0)
+                    .forEach(x -> {
                 if (x.getUnit().equals("T")) {
-                    x.setQuantityUsed(x.getQuantityUsed() * 1000);
+                    x.setQuantityUsed(x.getQuantityUsed().multiply(new BigDecimal(1000)));
                     x.setUnit("KG");
                 }
                 //生产总成本 = 各次 原料使用成本相加
                 x.setProduceRecordId(insert);
                 x.setCreatedTime(LocalDateTime.now());
 
-                int totalQuantity = materialInboundRecordMapper.getTotalQuantity(x.getMaterialName(), x.getSupplierId());
-                if (totalQuantity < x.getQuantityUsed()) {
+                BigDecimal totalQuantity = materialInboundRecordMapper.getTotalQuantity(x.getMaterialName(), x.getSupplierId());
+                if (totalQuantity.compareTo(x.getQuantityUsed()) < 0) {
                     throw new BusinessException(x.getMaterialName() + "原料不足");
                 }
                 //原料入库记录表需要做出相应修改
                 //用id 查出该原料的入库记录 修改它的剩余
                 MaterialInboundRecord m = materialInboundRecordMapper.selectById(x.getMaterialInboundRecordId());
 
-                m.setMaterialLeft(m.getMaterialLeft() - x.getQuantityUsed());
+                m.setMaterialLeft(m.getMaterialLeft().subtract(x.getQuantityUsed()) );
                 //删减库存后 修改状态
-                if (m.getMaterialLeft() > 0) {
+                if (m.getMaterialLeft().compareTo(BigDecimal.ZERO) > 0) {
                     m.setStatus("使用中");
                 } else {
                     m.setStatus("用尽");
@@ -80,7 +82,7 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
                 //更新原料入库记录表的库存
                 materialInboundRecordMapper.updateById(m);
                 //记录成本
-                request.setTotalCost(request.getTotalCost().add(m.getUnitPrice().multiply(new BigDecimal(x.getQuantityUsed()))));
+                request.setTotalCost(request.getTotalCost().add(m.getUnitPrice().multiply(x.getQuantityUsed())));
                 //原料使用记录表
                 produceMaterialMapper.insert(x);
             });
