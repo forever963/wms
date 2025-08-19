@@ -62,7 +62,7 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         //如果已入库
         if (materialInboundRecord.getInboundTime() != null) {
             materialInboundRecord.setStatus("已入库");
-            materialInboundRecord.setMaterialLeft(materialInboundRecord.getQuantity().intValue());
+            materialInboundRecord.setMaterialLeft(materialInboundRecord.getQuantity());
         }else {
             materialInboundRecord.setStatus("未入库");
         }
@@ -90,7 +90,7 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
         List<MaterialInboundRecordResponse> responseList = materialInboundRecordMapper.list(request);
         if(request.getPageNum() == null || request.getPageSize() == null) {
             responseList = responseList.stream().filter(x->
-               x.getMaterialLeft()>0
+               x.getMaterialLeft().compareTo(BigDecimal.ZERO)>0
             ).collect(Collectors.toList());
             return ResultResponse.success(responseList);
         }
@@ -105,7 +105,7 @@ public class MaterialInboundRecordServiceImpl extends ServiceImpl<MaterialInboun
             throw new BusinessException("该记录不存在");
         }
         old.setInboundTime(LocalDateTime.now());
-        old.setMaterialLeft(old.getQuantity().intValue());
+        old.setMaterialLeft(old.getQuantity());
         old.setStatus("已入库");
         materialInboundRecordMapper.updateById(old);
         return ResultResponse.success();

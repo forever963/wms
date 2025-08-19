@@ -55,7 +55,7 @@ public class MaterialInboundRecord implements Serializable {
     private String orderContract;
 
     @Schema(description = "原料剩余", required = true)
-    private Integer materialLeft;
+    private BigDecimal materialLeft;
 
     @Schema(description = "状态")
     private String status;

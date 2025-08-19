@@ -27,7 +27,7 @@ public class ProduceMaterial implements Serializable {
     private Integer produceRecordId;
 
     @Schema(description = "使用数量", required = true)
-    private Integer quantityUsed;
+    private BigDecimal quantityUsed;
 
     @Schema(description = "单位", required = true, maxLength = 50, example = "T/KG")
     private String unit;
