@@ -1,10 +1,13 @@
 package com.mortal.wms.business.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.mortal.wms.business.dto.CustomerPageRequest;
 import com.mortal.wms.business.entity.CustomerInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface CustomerInfoMapper extends BaseMapper<CustomerInfo> {
@@ -24,4 +27,6 @@ public interface CustomerInfoMapper extends BaseMapper<CustomerInfo> {
 
     @Select("SELECT * FROM customer_info WHERE office_phone = #{officePhone} AND deleted_time IS NULL")
     CustomerInfo selectByOfficePhone(@Param("officePhone") String officePhone);
+
+    List<CustomerInfo> list(CustomerPageRequest request);
 }

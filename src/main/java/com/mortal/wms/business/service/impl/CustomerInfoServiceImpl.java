@@ -2,6 +2,7 @@ package com.mortal.wms.business.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.mortal.wms.business.dto.CustomerPageRequest;
 import com.mortal.wms.business.entity.CustomerInfo;
 import com.mortal.wms.business.mapper.CustomerInfoMapper;
 import com.mortal.wms.business.service.CustomerInfoService;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, CustomerInfo> implements CustomerInfoService {
@@ -111,11 +114,8 @@ public class CustomerInfoServiceImpl extends ServiceImpl<CustomerInfoMapper, Cus
     }
 
     @Override
-    public ResultResponse listCustomers(PageRequest request) {
-        List<CustomerInfo> customers = customerInfoMapper.selectList(new LambdaQueryWrapper<CustomerInfo>()
-                .isNull(CustomerInfo::getDeletedTime)
-                .orderByDesc(CustomerInfo::getCreatedTime)
-        );
+    public ResultResponse listCustomers(CustomerPageRequest request) {
+        List<CustomerInfo> customers = customerInfoMapper.list(request);
         if(request.getPageNum()==null && request.getPageSize()==null){
             return ResultResponse.success(customers);
         }

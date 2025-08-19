@@ -1,5 +1,6 @@
 package com.mortal.wms.business.controller;
 
+import com.mortal.wms.business.dto.CustomerPageRequest;
 import com.mortal.wms.business.entity.CustomerInfo;
 import com.mortal.wms.business.service.CustomerInfoService;
 import com.mortal.wms.util.PageRequest;
@@ -42,7 +43,7 @@ public class CustomerInfoController {
 
     @GetMapping
     @Operation(summary = "查询所有客户")
-    public ResultResponse listCustomers(PageRequest request) {
+    public ResultResponse listCustomers(CustomerPageRequest request) {
         return customerService.listCustomers(request);
     }
 }
