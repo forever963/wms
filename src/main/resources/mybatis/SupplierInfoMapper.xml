@@ -6,6 +6,7 @@
             resultType="com.mortal.wms.business.entity.SupplierInfo">
         select * from supplier_info where
          deleted_time is null
+        and supplier_name != '暂无'
         <if test="supplierName!=null and supplierName != ''">
             and supplier_name like concat('%',#{supplierName},'%')
         </if>
