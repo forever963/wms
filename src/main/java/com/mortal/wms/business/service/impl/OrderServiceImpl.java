@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -117,8 +118,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 .isNull(Orders::getDeletedTime)
                 .eq(Orders::getOrderNum, request.getOrderNum())
         );
-        if(num != null) {
-            return ResultResponse.error("合同编号已存在");
+        if (num != null) {
+            throw new BusinessException("合同编号已存在");
         }
         //验证产品名是否在字典中
         List<String> namesByType = infoCategoriesService.getNamesByType(3);
@@ -126,13 +127,54 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         BeanUtils.copyProperties(request, orders);
         orders.setCreatedTime(LocalDateTime.now());
         orderMapper.insert(orders);
+        //准备出库记录
+        List<ProductOutboundRecord> productOutboundRecordList = new ArrayList<>();
+        //遍历订单的货物列表 产品名称校验 删减生产记录库存
         request.getOrderProductList().forEach(x -> {
             if (!namesByType.contains(x.getProductName())) {
                 throw new BusinessException(x.getProductName() + "该产品名不存在 请添加字典");
             }
-            x.setCreatedTime(request.getOrderCreationTime());
+            //这里 删减生产记录的库存 并整理出库记录数据
+            //查找出对应产品的生产记录  产品名称=当前  剩余库存>0 没有被删除 按剩余库存逆序
+            List<ProduceRecord> produceRecordList = produceRecordMapper.selectList(new LambdaQueryWrapper<ProduceRecord>().
+                    eq(ProduceRecord::getProductName, x.getProductName())
+                    .gt(ProduceRecord::getLeftQuantity, 0)
+                    .isNull(ProduceRecord::getDeletedTime)
+                    .orderByDesc(ProduceRecord::getLeftQuantity)
+            );
+            for (ProduceRecord y : produceRecordList) {
+                ProductOutboundRecord productOutboundRecord = new ProductOutboundRecord();
+                productOutboundRecord.setOutboundTime(orders.getOrderCreationTime());
+                productOutboundRecord.setUnit("KG");
+                productOutboundRecord.setProduceRecordId(y.getId());
+                productOutboundRecord.setOrderProductId(orders.getId());
+                //如果当前生产记录大于等于 需要消耗的数量 则直接记录
+                if (y.getLeftQuantity() >= x.getQuantity()) {
+                    //1.扣减库存
+                    y.setLeftQuantity(y.getLeftQuantity() - x.getQuantity());
+                     //扣减后入库
+                    produceRecordMapper.updateById(y);
+                    //2.整理 出库记录 数据
+                    productOutboundRecord.setQuantity(x.getQuantity());
+                    //3.写入记录
+                    productOutboundRecordList.add(productOutboundRecord);
+                    break;
+                }
+                //当前生产记录小于需求 则需要进下一次循环
+                //整理出库记录数据
+                productOutboundRecord.setQuantity(x.getQuantity()-y.getLeftQuantity());
+                 //扣减生产记录为0
+                y.setLeftQuantity(0);
+                 //扣减后入库
+                produceRecordMapper.updateById(y);
+                // 更新还需要的数量
+                x.setQuantity(x.getQuantity() - y.getLeftQuantity());
+            }
+            x.setCreatedTime(LocalDateTime.now());
             x.setOrderId(orders.getId());
         });
+        //写入出库记录 批量插入
+        productOutboundRecordMapper.insert(productOutboundRecordList);
         //批量插入
         orderProductMapper.insert(request.getOrderProductList());
         return ResultResponse.success();
@@ -164,7 +206,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         //订单产品
         OrderProduct old = orderProductMapper.selectById(request.getOrderProductId());
         if (request.getOutboundTime() == null) {
-            request.setOutboundTime(LocalDateTime.now());
+            request.setOutboundTime(LocalDate.now());
         }
         List<ProductOutboundRecord> list = new ArrayList<>();
         //
@@ -259,7 +301,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             });
         }
         homeDataVo.setIncome(map2);
-
 
 
         Map<Integer, BigDecimal> map3 = new HashMap<>();

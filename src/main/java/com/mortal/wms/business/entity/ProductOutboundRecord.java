@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -31,8 +32,8 @@ public class ProductOutboundRecord implements Serializable {
     private String unit;
 
     @Schema(description = "出库时间", required = true)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime outboundTime;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate outboundTime;
 
     @Schema(description = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

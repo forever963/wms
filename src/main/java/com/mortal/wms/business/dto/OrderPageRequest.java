@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 public class OrderPageRequest extends PageRequest {
     @Schema(description = "客户id", required = true)
-    private String customerName; // 客户id
+    private String companyName; // 客户id
 }

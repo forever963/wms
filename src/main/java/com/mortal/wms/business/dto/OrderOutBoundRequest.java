@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,5 +17,5 @@ public class OrderOutBoundRequest implements Serializable {
     List<OutBoundProduct> outBoundProductList;
     @Schema(description = "出库时间", required = true)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime outboundTime;
+    private LocalDate outboundTime;
 }

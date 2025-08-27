@@ -3,10 +3,10 @@
 <mapper namespace="com.mortal.wms.business.mapper.OrderMapper">
 <select id="list">
     select * from `orders` o
-             left join supplier_info si on o.customer_info_id = si.id
+             left join customer_info ci on o.customer_info_id = ci.id
              where o.deleted_time is null
-    <if test="customerName!=null and customerName!=''">
-        si.customer_name like concat('%',#{customerName},'%')
+    <if test="companyName!=null and companyName!=''">
+        and ci.company_name like concat('%',#{companyName},'%')
     </if>
     order by o.order_creation_time desc
 </select>
