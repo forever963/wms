@@ -46,7 +46,9 @@ public class ProduceRecordServiceImpl extends ServiceImpl<ProduceRecordMapper, P
         request.setTotalCost(BigDecimal.ZERO);
         //同步到剩余库存 为了订单出库
         request.setLeftQuantity(request.getProduceQuantity());
-        request.setCreatedTime(LocalDateTime.now());
+        if(request.getCreatedTime() == null){
+            request.setCreatedTime(LocalDateTime.now());
+        }
         //插入 拿到主键id
         produceRecordMapper.insert(request);
         int insert = request.getId();
