@@ -170,7 +170,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 // 更新还需要的数量
                 x.setQuantity(x.getQuantity() - y.getLeftQuantity());
             }
-            x.setCreatedTime(LocalDateTime.now());
+            //将订单产品表 的 创建时间 同步为 订单创建时间
+            x.setCreatedTime(request.getOrderCreationTime().atStartOfDay());
             x.setOrderId(orders.getId());
         });
         //写入出库记录 批量插入
