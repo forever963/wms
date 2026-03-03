@@ -10,4 +10,19 @@
     </if>
     order by o.order_creation_time desc
 </select>
+    <select id="getOweOrder"
+    >
+        select * from `orders` o
+        left join customer_info ci on o.customer_info_id = ci.id
+        where o.deleted_time is null and owe = 0
+        <if test="companyName !=null and company!='' ">
+            and ci.company_name like concat('%',#{companyName},'%')
+        </if>
+        <if test="startDate !=null and startDate != '' ">
+            and o.order_creation_time >= #{startDate}
+        </if>
+        <if test="endDate !=null and endDate != ''">
+            and o.order_creation_time &lt; #{endDate}
+        </if>
+    </select>
 </mapper>

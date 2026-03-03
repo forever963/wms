@@ -8,6 +8,7 @@ server:
     context-path: /wms/api
   tomcat:
     connection-timeout: 20s
+    uri-encoding: UTF-8
 mybatis-plus:
   #指向了项目的src/main/resources/mybatis目录 查找所有.xml文件作为映射器文件
   mapper-locations: classpath:mybatis/*.xml

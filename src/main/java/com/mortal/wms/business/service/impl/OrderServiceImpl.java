@@ -2,10 +2,7 @@ package com.mortal.wms.business.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.mortal.wms.business.dto.OrderOutBoundPageRequest;
-import com.mortal.wms.business.dto.OrderOutBoundRequest;
-import com.mortal.wms.business.dto.OrderPageRequest;
-import com.mortal.wms.business.dto.OrdersRequest;
+import com.mortal.wms.business.dto.*;
 import com.mortal.wms.business.entity.*;
 import com.mortal.wms.business.mapper.*;
 import com.mortal.wms.business.service.InfoCategoriesService;
@@ -17,18 +14,26 @@ import com.mortal.wms.business.vo.UserVo;
 import com.mortal.wms.execption.BusinessException;
 import com.mortal.wms.util.PageResult;
 import com.mortal.wms.util.ResultResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.jxls.common.Context;
+import org.jxls.util.JxlsHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implements OrderService {
     @Autowired
@@ -108,6 +113,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             x.setOrderProductList(map.get(x.getId()));
             x.setTotalPrice(totalPrice);
         });
+        if(request.getPageNum()==null || request.getPageNum()==0){
+            return ResultResponse.success(list);
+        }
         PageResult pageResult = PageResult.ckptPageUtilList(request.getPageNum(), request.getPageSize(), list);
         return ResultResponse.success(pageResult);
     }
@@ -197,6 +205,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         BigDecimal total = orderProductMapper.getTotalByOrderId(request.getOrderId());
         if (total.compareTo(old.getPaidAmount()) < 0) {
             throw new BusinessException("当前收款金额大于订单总金额,请重新提交");
+        }else if(total.compareTo(old.getPaidAmount()) == 0){//结清
+            old.setOwe(true);
         }
         orderMapper.updateById(old);
         return ResultResponse.success();
@@ -323,4 +333,69 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
         return ResultResponse.success(homeDataVo);
     }
+
+    @Override
+    public ResultResponse owe(UserVo userVo, OweOrderRequest request) {
+        List<OrdersRequest> ordersRequestList = new ArrayList<>();
+        List<OrdersResponse> oweOrders = orderMapper.getOweOrder(request);
+        
+
+        return ResultResponse.success(ordersRequestList);
+    }
+
+    @Override
+    public void exportContract(HttpServletResponse response, ContractData data) throws IOException {
+        //这里模板会爆莫名其妙的错误 提示模板损坏 换个模板名字就好
+        // 1. 设置头
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        String fileName = "";
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + URLEncoder.encode(fileName, StandardCharsets.UTF_8.name()).replace("+", "%20"));
+        InputStream templateStream = null;
+        OutputStream out = null;
+        try {
+            // 2. 读模板
+            ClassPathResource resource = new ClassPathResource("templates/c.xlsx");
+            if (!resource.exists()) throw new FileNotFoundException("模板不存在");
+            templateStream = resource.getInputStream();
+            // 3. 获取输出流
+            out = response.getOutputStream();
+            // 4. 准备数据
+            Context context = new Context();
+            // —— 合同基本信息 ——
+            context.putVar("contractNumber", data.getContractNumber());
+            context.putVar("buyerName", data.getBuyerName());
+            context.putVar("deliveryAddress", data.getDeliveryAddress());
+            context.putVar("contactPerson", data.getContactPerson());
+            context.putVar("contactPhone", data.getContactPhone());
+            context.putVar("paymentMethod", data.getPaymentMethod());
+            context.putVar("deliveryDate", data.getDeliveryDate());
+            context.putVar("contractExpiryDate", data.getContractExpiryDate());
+            // 确保模板中使用 jx:each items="productList" var="item"
+            context.putVar("productList", data.getProductList());
+            context.putVar("totalAmount", data.getTotalAmount());
+            context.putVar("totalAmountInWords", data.getTotalAmountInWords());
+            context.putVar("remark", data.getRemark());
+            context.putVar("nowDate", data.getNowDate());
+            JxlsHelper.getInstance()
+                    .setEvaluateFormulas(true)
+                    .setUseFastFormulaProcessor(false) // 尝试添加这一行，禁用快速处理器，使用标准解析器
+                    .processTemplate(templateStream, out, context);
+            // 6. 刷新
+            out.flush();
+        } catch (Exception e) {
+            log.error("导出过程中发生异常", e);
+            if (!response.isCommitted()) {
+                response.reset();
+                response.setContentType("text/plain;charset=UTF-8");
+                response.getWriter().write("导出失败：" + e.getMessage());
+            }
+            throw new IOException("导出失败", e);
+        } finally {
+            if (templateStream != null) {
+                try { templateStream.close(); } catch (IOException ignored) {}
+            }
+            //绝对不要 close(out)
+        }
+    }
+
 }

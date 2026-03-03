@@ -7,4 +7,5 @@ import lombok.Data;
 public class InfoCategoriesRequest extends PageRequest {
     Integer type;
     String description;
+    String name;
 }

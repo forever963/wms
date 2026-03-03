@@ -1,14 +1,14 @@
 package com.mortal.wms.business.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.mortal.wms.business.dto.OrderOutBoundPageRequest;
-import com.mortal.wms.business.dto.OrderOutBoundRequest;
-import com.mortal.wms.business.dto.OrderPageRequest;
-import com.mortal.wms.business.dto.OrdersRequest;
+import com.mortal.wms.business.dto.*;
 import com.mortal.wms.business.entity.Orders;
 import com.mortal.wms.business.entity.OrderReceipt;
 import com.mortal.wms.business.vo.UserVo;
 import com.mortal.wms.util.ResultResponse;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 
 public interface OrderService extends IService<Orders> {
 
@@ -27,4 +27,8 @@ public interface OrderService extends IService<Orders> {
     ResultResponse outBoundRecordlist(UserVo userVo, OrderOutBoundPageRequest request);
 
     ResultResponse homeData(Integer year);
+
+    ResultResponse owe(UserVo userVo, OweOrderRequest request);
+
+    void exportContract(HttpServletResponse response, ContractData data)throws IOException;
 }

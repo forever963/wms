@@ -1,20 +1,20 @@
 package com.mortal.wms.business.controller;
 
 import com.mortal.wms.annotation.CurrentUser;
-import com.mortal.wms.business.dto.OrderOutBoundPageRequest;
-import com.mortal.wms.business.dto.OrderOutBoundRequest;
-import com.mortal.wms.business.dto.OrderPageRequest;
-import com.mortal.wms.business.dto.OrdersRequest;
+import com.mortal.wms.business.dto.*;
 import com.mortal.wms.business.entity.OrderReceipt;
 import com.mortal.wms.business.service.OrderService;
 import com.mortal.wms.business.vo.UserVo;
 import com.mortal.wms.util.ResultResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("order")
@@ -77,5 +77,18 @@ public class OrderController {
     @Transactional
     public ResultResponse outBoundRecord(@CurrentUser UserVo userVo,OrderOutBoundPageRequest request) {
         return orderService.outBoundRecordlist(userVo,request);
+    }
+
+    @PostMapping("/owe")
+    @Operation(summary = "订单欠款")
+    @Transactional
+    public ResultResponse owe(@CurrentUser UserVo userVo, @RequestBody OweOrderRequest request) {
+        return orderService.owe(userVo,request);
+    }
+
+    @PostMapping("/export-contract")
+    @Operation(summary = "订单合同打印")
+    public void exportContract(HttpServletResponse response,@RequestBody ContractData data) throws IOException {
+        orderService.exportContract(response, data);
     }
 }

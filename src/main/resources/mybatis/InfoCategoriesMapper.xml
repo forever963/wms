@@ -13,6 +13,9 @@
             <if test="description != null">
                 and description like CONCAT('%', #{description}, '%')
             </if>
+            <if test="name != null">
+                and name like CONCAT('%', #{name}, '%')
+            </if>
         </where>
         order by type,display_order
     </select>
