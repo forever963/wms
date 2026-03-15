@@ -35,7 +35,7 @@ public class Orders implements Serializable {
     private BigDecimal paidAmount;
 
     @Schema(description = "是否欠款")
-    private Boolean owe;
+    private BigDecimal owe;
 
     @Schema(description = "订单创建时间", required = true)
     @JsonFormat(pattern = "yyyy-MM-dd")

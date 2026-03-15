@@ -79,16 +79,14 @@ public class OrderController {
         return orderService.outBoundRecordlist(userVo,request);
     }
 
-    @PostMapping("/owe")
-    @Operation(summary = "订单欠款")
-    @Transactional
-    public ResultResponse owe(@CurrentUser UserVo userVo, @RequestBody OweOrderRequest request) {
-        return orderService.owe(userVo,request);
-    }
-
     @PostMapping("/export-contract")
     @Operation(summary = "订单合同打印")
     public void exportContract(HttpServletResponse response,@RequestBody ContractData data) throws IOException {
         orderService.exportContract(response, data);
+    }
+    @PostMapping("/export-owe")
+    @Operation(summary = "对账单打印")
+    public void exportOwe(HttpServletResponse response,@RequestBody OweDataRequest data) throws IOException {
+        orderService.exportOwe(response, data);
     }
 }

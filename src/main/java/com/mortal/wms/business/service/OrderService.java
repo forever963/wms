@@ -28,7 +28,8 @@ public interface OrderService extends IService<Orders> {
 
     ResultResponse homeData(Integer year);
 
-    ResultResponse owe(UserVo userVo, OweOrderRequest request);
 
     void exportContract(HttpServletResponse response, ContractData data)throws IOException;
+
+    void exportOwe(HttpServletResponse response, OweDataRequest data) throws IOException;
 }

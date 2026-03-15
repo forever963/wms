@@ -3,26 +3,21 @@
 <mapper namespace="com.mortal.wms.business.mapper.OrderMapper">
 <select id="list">
     select * from `orders` o
-             left join customer_info ci on o.customer_info_id = ci.id
-             where o.deleted_time is null
+    left join customer_info ci on o.customer_info_id = ci.id
+    where o.deleted_time is null
+
     <if test="companyName!=null and companyName!=''">
         and ci.company_name like concat('%',#{companyName},'%')
     </if>
+    <if test="startDate !=null">
+        and o.order_creation_time >= #{startDate}
+    </if>
+    <if test="endDate !=null">
+        and o.order_creation_time &lt; #{endDate}
+    </if>
+    <if test="isOwe !=null and isOwe">
+        and owe > 0
+    </if>
     order by o.order_creation_time desc
 </select>
-    <select id="getOweOrder"
-    >
-        select * from `orders` o
-        left join customer_info ci on o.customer_info_id = ci.id
-        where o.deleted_time is null and owe = 0
-        <if test="companyName !=null and company!='' ">
-            and ci.company_name like concat('%',#{companyName},'%')
-        </if>
-        <if test="startDate !=null and startDate != '' ">
-            and o.order_creation_time >= #{startDate}
-        </if>
-        <if test="endDate !=null and endDate != ''">
-            and o.order_creation_time &lt; #{endDate}
-        </if>
-    </select>
 </mapper>

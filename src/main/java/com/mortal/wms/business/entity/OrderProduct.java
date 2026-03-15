@@ -35,6 +35,9 @@ public class OrderProduct implements Serializable {
     @Schema(description = "已出库数量", defaultValue = "0")
     private Integer outboundQuantity; // 已出库数量
 
+    @Schema(description = "欠款细节")
+    private BigDecimal oweItem;
+
     @Schema(description = "创建时间", required = true)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)
