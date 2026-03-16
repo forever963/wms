@@ -1,18 +1,7 @@
 package com.mortal.wms.business.service.impl;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.write.builder.ExcelWriterBuilder;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import com.alibaba.excel.write.metadata.fill.FillConfig;
-import com.alibaba.excel.write.metadata.style.WriteCellStyle;
-import com.alibaba.excel.write.metadata.style.WriteFont;
-import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.write.metadata.style.WriteCellStyle;
-import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mortal.wms.business.dto.*;
@@ -494,7 +483,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("欠款对账单");
         // 设置列宽
-        double[] realWidths = {11, 10.5, 11, 15, 9, 18, 16, 10.5, 6.5};
+        double[] realWidths = {9, 8, 9, 9, 7, 15, 13, 10, 4.3};
         for (int i = 0; i < realWidths.length; i++) {
             sheet.setColumnWidth(i, (int) (realWidths[i] * 256));
         }
@@ -565,7 +554,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         Cell cell = row.createCell(0);
         cell.setCellValue("东莞市广源有机硅科技有限公司");
         cell.setCellStyle(titleStyle);
-        row.createCell(8).setCellStyle(titleStyle);
+        forCell(row,titleStyle);
         sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 8));
 
 
@@ -667,7 +656,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             row.createCell(5).setCellValue(item.getUnitPrice().doubleValue());
             row.getCell(5).setCellStyle(numberStyle);
             row.createCell(6).setCellValue(item.getOweItem().doubleValue());
-            row.getCell(6).setCellStyle(centerAndBorderStyle);
+            row.getCell(6).setCellStyle(numberStyle);
             row.createCell(7).setCellValue(item.getOrderNum());
             row.getCell(7).setCellStyle(centerAndBorderStyle);
             row.createCell(8);
